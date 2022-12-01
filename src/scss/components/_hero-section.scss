@@ -1,0 +1,24 @@
+.hero-container {
+    position: relative;
+    // Colors are extracted from the printed test kit boxes (they are related to primary color, but not exactly the same).
+    background: linear-gradient(-45deg,#12abe3, #8dd5e3);
+    margin-top: -300px;
+    padding-top: 260px;
+    overflow: hidden;
+
+    .hero-slider {
+        .slide {
+            @extend .p-xxl;
+        }
+    }
+}
+
+@include mobile {
+    .hero-container {
+        .hero-slider {
+            .slide {
+                padding: $space-l $space-s;
+            }
+        }
+    }
+}

@@ -1,0 +1,109 @@
+@import "./_variables";
+@import "./components/typography/fonts/_fonts";
+@import "./utils/_mixins";
+@import "./utils/_helpers";
+@import "./utils/_layout";
+@import "./utils/_reset";
+
+// General components
+@import "./components/_header";
+@import "./components/_subheader";
+@import "./components/_scrollbar";
+@import "./components/_cart-indicator";
+@import "./components/category-button";
+@import "./components/_modal";
+@import "./components/_spinner";
+@import "./components/_search-bar";
+@import "./components/_icon-slider";
+@import "./components/_result";
+@import "./components/_hero-section";
+@import "./components/_text-section";
+@import "./components/_footer";
+@import "./components/_blog-post";
+@import "./components/_email-result";
+@import "./components/_overlay-menu";
+@import "./components/_tour-modal";
+@import "./components/_pagination";
+@import "./components/_accept-cookies";
+@import "./components/_race-card";
+
+// Forms components
+@import "./components/forms/_button";
+@import "./components/forms/_checkbox";
+@import "./components/forms/_dropdown";
+@import "./components/forms/_form";
+@import "./components/forms/_image-picker";
+@import "./components/forms/_input";
+@import "./components/forms/_radio";
+
+// Typography components
+@import "./components/typography/_heading";
+@import "./components/typography/_link";
+@import "./components/typography/_paragraph";
+@import "./components/typography/_span";
+
+// Pages
+@import "./pages/_home";
+@import "./pages/_account";
+@import "./pages/_article";
+@import "./pages/_basket";
+@import "./pages/_race";
+@import "./pages/_error";
+
+body {
+	// background-image: url( '/images/background.svg' );
+	background-size: cover;
+	background-position: center;
+	background-attachment: fixed;
+
+	top: 0!important;
+}
+
+// Main
+main {	
+	padding-top: 300px;
+}
+
+// Contact page
+.contact-info-cards {
+	display: table;
+	border-spacing: 20px;
+
+	& > div {
+		display: table-cell;
+		padding-top: $space-s + 8px;
+	}
+}
+
+// Responsive
+@include mobile {
+	main {
+		padding-left: 0;
+		padding-right: 0;
+	}
+
+	.contact-app {
+		padding: 0 40px;
+	}
+
+	.contact-info-cards {
+		display: flex;
+		flex-wrap: wrap;
+	
+		& > div {
+			margin-bottom: 20px;
+		}
+	}
+}
+
+@include tablet {
+	html {
+		font-size: $font-size-tablet;
+	}
+}
+
+@include desktop {
+	html {
+		font-size: $font-size-desktop;
+	}
+}

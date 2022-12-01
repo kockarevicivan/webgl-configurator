@@ -1,0 +1,43 @@
+.blog-cards-container {
+    overflow: auto;
+}
+
+.blog-post {
+    @extend .p-s;
+    @extend .card;
+
+    & > div {
+        min-height: 100%;
+
+        .blog-image {
+            @extend .standard-background-image;
+            
+            height: 300px;
+            width: 100%;
+            max-width: 600px;
+            border-radius: $border-radius-m;
+            background-color: $primary;
+        }
+    }
+}
+
+@include mobile {
+    .blog-post {
+        padding: $space-s $space-s $space-xs $space-s;
+
+        & > div {
+            & > h3 {
+                margin-bottom: $space-m;
+            }
+
+            & > p, span {
+                display: inline-block;
+                text-align: justify;
+            }
+
+            &:nth-child(2) {
+                padding-left: 0;
+            }
+        }
+    }
+}

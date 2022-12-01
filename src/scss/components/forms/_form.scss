@@ -1,0 +1,42 @@
+.form-row {
+    @extend .m-b-s;
+
+    .field-label {
+        @extend .m-b-xxs;
+
+        display: inline-block;
+        font-size: 0.85rem;
+    }
+
+    .error-message {
+        @extend .m-t-xxs;
+
+        display: inline-block;
+        font-size: 0.85rem;
+        color: $red-light;
+    }
+
+    .success-message {
+        @extend .m-t-xxs;
+
+        display: inline-block;
+        font-size: 0.85rem;
+        color: $green-light;
+    }
+}
+
+.additional-field-text {
+    @extend .m-t-xxs;
+
+    display: block;
+    color: $light-gray;
+    font-size: 0.85rem;
+}
+
+.mandatory {
+    color: $red;
+}
+
+.wpwl-form-card {
+    margin: 0;
+}

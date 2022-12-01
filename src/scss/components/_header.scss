@@ -1,0 +1,53 @@
+.header-logo {
+    // max-height: 50px;
+}
+
+.menu-burger {
+    @extend .interactive;
+
+    max-height: 44px;
+}
+
+.desktop-header {
+    @extend .flex-distributed-row;
+
+    .main-nav {
+        &>a {
+            color: $text-color  !important;
+            margin-left: $space-m;
+
+            &:first-child {
+                margin-left: auto;
+            }
+
+            &>img {
+                @extend .m-l-xxs;
+            }
+        }
+    }
+}
+
+.header-wrapper {
+    @extend .faded-white-background;
+
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    z-index: 1000;
+    padding-bottom: 20px;
+    -webkit-transition: background-color 0.2s ease-out,
+        top 0.2s ease-out;
+    -ms-transition: background-color 0.2s ease-out,
+        top 0.2s ease-out;
+    transition: background-color 0.2s ease-out,
+        top 0.2s ease-out;
+
+    &.nav-up {
+        top: -285px;
+    }
+
+    &.transparent {
+        background-color: transparent;
+    }
+}

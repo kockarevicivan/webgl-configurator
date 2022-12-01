@@ -1,0 +1,157 @@
+// Global
+* {
+    padding: 0;
+    margin: 0;
+    box-sizing: border-box;
+
+    // Firefox scrollbar
+    scrollbar-color: transparentize($text-color, 0.4) $white !important;
+    scrollbar-width: thin !important;
+}
+
+html {
+    font-size: $font-size-mobile;
+}
+
+body {
+    background-color: $white;
+    font-family: $font-family;
+    min-width: $body-min-width;
+    -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+    -webkit-tap-highlight-color: transparent;
+}
+
+// Chrome and Edge scrollbar
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+    background-color: transparentize($text-color, 0.4);
+    border-radius: 4px;
+}
+
+[placeholder] {
+    text-overflow: ellipsis;
+}
+
+// Slick
+.slick-track {
+    display: flex !important;
+}
+
+.slick-slide {
+    height: inherit !important;
+}
+
+.slick-prev:before,
+.slick-next:before {
+    color: $light-gray;
+}
+
+// Google Translate SDK
+#google_translate_element {
+    background: transparent;
+}
+
+.goog-te-banner-frame {
+    display: none;
+}
+
+.goog-te-gadget {
+    display: inline-block;
+    width: 205px;
+    overflow: hidden;
+}
+
+.skiptranslate {
+    .goog-te-combo {
+        @extend .p-h-xs;
+
+        margin-top: 0!important;
+
+        display: block;
+        border: none;
+        outline: none;
+        height: 40px;
+        line-height: 40px;
+        max-width: 205px;
+        background-color: $cream-white;
+        cursor: pointer;
+    }
+}
+
+.goog-logo-link {
+    display: inline-block !important;
+    font-size: 0.6rem!important;
+    border-bottom: none!important;
+    padding-right: 20px!important;
+
+    img {
+        display: inline-block!important;
+        margin-right: 5px;
+    }
+
+    pointer-events: none;
+}
+
+@include tablet {
+    .goog-te-gadget {
+        width: 100%;
+    }
+
+    .skiptranslate {
+        margin-bottom: $space-xs;
+
+        .goog-te-combo {
+            width: 100%;
+            max-width: 100%;
+            height: 43px;
+            line-height: 43px;
+        }
+    }
+}
+
+@include mobile {
+    .goog-te-gadget {
+        width: 100%;
+    }
+
+    .skiptranslate {
+        margin-bottom: $space-xs;
+
+        .goog-te-combo {
+            width: 100%;
+            max-width: 100%;
+        }
+
+        margin-top: $space-xs;
+    }
+}
+
+// Toastr
+.toast {
+    padding: $space-s !important;
+    padding-left: 50px !important;
+    max-width: calc(100vw - 30px) !important;
+}
+
+.toast-info {
+    background-color: $primary;
+}
+
+.toast-success {
+    background-color: $green-light;
+}
+
+.toast-warning {
+    background-color: $yellow;
+}
+
+.toast-error {
+    background-color: $red-light;
+}

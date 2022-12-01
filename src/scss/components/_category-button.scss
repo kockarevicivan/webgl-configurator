@@ -1,0 +1,26 @@
+.category-row{
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin: 15px 0;
+
+    .category-button{
+        @extend .interactive;
+
+        background-color: $orange;
+        color: $white;
+        height: $category-button-height;
+        padding: 15px;
+        border-radius: $border-radius-l;
+        display: flex;
+        align-items: center;
+
+        p{
+            margin: 0
+        }
+    }
+
+    .blue{
+        background-color: $blue;
+    }
+}

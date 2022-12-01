@@ -1,0 +1,7 @@
+const Layout = require('./layout');
+
+<Layout>
+	<main>
+		<h1>Home</h1>
+	</main>
+</Layout >

@@ -1,0 +1,10 @@
+a:not(.btn):not(.badge) {
+    font-size: $component-font-rem;
+    color: $tertiary;
+    cursor: pointer;
+    font-weight: 600;
+
+    &.dark {
+        color: $secondary;
+    }
+}

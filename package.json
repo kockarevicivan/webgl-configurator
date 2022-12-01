@@ -1,0 +1,38 @@
+{
+  "name": "webgl-configurator",
+  "version": "1.0.0",
+  "description": "Repository for a web based product configurator, written in JS+WebGL.",
+  "main": "index.js",
+  "dependencies": {
+    "axios": "^0.27.2",
+    "body-parser": "^1.20.0",
+    "crypto-js": "^4.1.1",
+    "dotenv": "^16.0.1",
+    "express": "^4.17.3",
+    "express-engine-jsx": "^3.4.3",
+    "express-fileupload": "^1.4.0",
+    "https": "^1.0.0",
+    "mongoose": "^6.4.6",
+    "querystring": "^0.2.1",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "winston": "^3.8.1"
+  },
+  "devDependencies": {
+    "node-sass-middleware": "^1.0.1"
+  },
+  "scripts": {
+    "start": "nodemon src/app.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kockarevicivan/webgl-configurator.git"
+  },
+  "author": "Ivan Kockarevic",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/kockarevicivan/webgl-configurator/issues"
+  },
+  "homepage": "https://github.com/kockarevicivan/webgl-configurator#readme"
+}

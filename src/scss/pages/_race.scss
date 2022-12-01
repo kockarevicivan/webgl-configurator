@@ -1,0 +1,32 @@
+.race {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 20px;
+
+    &--filter {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 10px;
+        color: $blue;
+
+        &--item {
+            padding-right: 10px;
+            border-right: 2px solid $blue;
+        }
+
+        p {
+            @extend .interactive;
+            cursor: pointer;
+        }
+    }
+
+    .race-results {
+        display: flex;
+        gap: 30px;
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+}

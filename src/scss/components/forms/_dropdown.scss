@@ -1,0 +1,33 @@
+.dropdown-container {
+    position: relative;
+
+    select {
+        -webkit-appearance: none;
+        -moz-appearance: none;
+        text-indent: 1px;
+        text-overflow: "";
+        cursor: pointer;
+
+        &::-ms-expand {
+            display: none;
+        }
+    }
+
+    .select-wrapper {
+        position: relative;
+
+        img {
+            position: absolute;
+            right: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            pointer-events: none;
+            margin: 0;
+        }
+    }
+
+    label + .select-wrapper {
+        // Custom size outside of the standard layout
+        margin-top: 6px;
+    }
+}

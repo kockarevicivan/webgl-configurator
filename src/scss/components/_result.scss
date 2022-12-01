@@ -1,0 +1,191 @@
+.result-slider {
+    clear: both;
+}
+
+.bundle-results {
+    @extend .p-b-m;
+    @extend .m-b-m;
+
+    border-bottom: 1px solid $light-gray;
+}
+
+.search-race-results {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+
+    .race-card{
+        .image{
+            width: 110px; 
+            height: 110px
+        }
+
+        h4{
+            font-size: 1.1rem;
+        }
+    }
+}
+
+.result-card {
+    @extend .card;
+    @extend .m-h-xs;
+    @extend .m-v-s;
+
+    display: inline-block;
+    padding: 0;
+    width: 280px;
+    height: 500px;
+    vertical-align: top;
+
+    .image {
+        @extend .standard-background-image;
+
+        display: block;
+        position: relative;
+        width: 100%;
+        height: 160px;
+        background-blend-mode: multiply;
+        background-color: transparentize($primary, 0.1);
+
+        .remove-item {
+            @extend .interactive;
+
+            position: absolute;
+            background-color: rgba($orange, 0.8);
+            border-radius: 30px;
+            width: 25px;
+            top: 5px;
+            left: 5px;
+            height: 25px;
+            background-image: url("/images/icons/close.svg");
+            background-position: center;
+            background-size: contain;
+            cursor: pointer;
+        }
+
+        .bundle-icon {
+            @extend .flex-center;
+
+            position: absolute;
+            height: 50px;
+            width: 50px;
+            bottom: -30px;
+            border-radius: 50%;
+            background-color: $yellow;
+            left: 50%;
+            transform: translateX(-50%);
+
+            &.single {
+                background-color: $primary;
+            }
+
+            img {
+                max-width: 26px;
+                max-height: 26px;
+            }
+        }
+    }
+
+    .content {
+        @extend .p-h-s;
+        @extend .p-v-m;
+        
+        h4 {
+            @extend .limited-text;
+            @extend .p-xxs;
+
+            color: $white;
+            background-color: transparentize($primary, 0.3);
+            white-space: normal;
+            // line-height: 1.25em;
+            // max-height: 2.5em;
+        }
+
+        &--description{
+            height: 160px;
+        }
+    }
+
+    &.bundle {
+        .image {
+            background-color: transparentize($yellow, 0.1);
+        }
+
+        .content {
+            h4 {
+                background-color: transparentize($yellow, 0.3);
+            }
+        }
+    }
+}
+
+@include tablet {
+    .result-card{
+        width: 260px;
+        height: 450px;
+        
+        .image{
+            height: 150px;
+        }
+
+        h4{
+            font-size: 1.1rem;
+        }
+
+        span{
+            font-size: 0.80rem;
+        }
+    
+        .content{
+            &--description{
+                height: 110px;
+            }
+        }
+    }
+
+}
+
+@include mobile {
+    .result-card{
+        width: 240px;
+        height: 420px;
+        
+        .image{
+            height: 130px;
+        }
+
+        h4{
+            font-size: 0.95rem;
+        }
+
+        span{
+            font-size: 0.75rem;
+        }
+    
+        .content{
+            &--description{
+                height: 100px;
+            }
+        }
+
+        .pill{
+            font-size: 0.8rem;
+            margin: 30px 0 0 0;
+        }
+    }
+
+}
+
+.cart-items-row {
+    @extend .result-slider;
+    position: relative;
+    display: flex;
+    flex-wrap: wrap;
+    width: 100%;
+    box-sizing: border-box;
+    @extend .m-b-l;
+
+    .result-card {
+        min-width: 220px;
+    }
+}
