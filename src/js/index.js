@@ -82,10 +82,18 @@ const uniformLocations = {
 };
 
 const matrix = mat4.create();
+
 mat4.translate(matrix, matrix, [0.2, 0.5, 0]);
 mat4.scale(matrix, matrix, [0.25, 0.25, 0.25]);
-mat4.rotateZ(matrix, matrix, Math.PI/2);
 
-gl.uniformMatrix4fv(uniformLocations.matrix, false, matrix);
+function animate() {
+    requestAnimationFrame(animate);
 
-gl.drawArrays(gl.TRIANGLES, 0, 3);
+    mat4.rotateZ(matrix, matrix, Math.PI / 90);
+
+    gl.uniformMatrix4fv(uniformLocations.matrix, false, matrix);
+
+    gl.drawArrays(gl.TRIANGLES, 0, 3);
+}
+
+animate();
