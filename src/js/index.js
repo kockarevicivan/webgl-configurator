@@ -130,6 +130,7 @@ gl.vertexAttribPointer(colorLocation, 3, gl.FLOAT, false, 0, 0);
 
 
 gl.useProgram(program);
+gl.enable(gl.DEPTH_TEST);
 
 const uniformLocations = {
     matrix: gl.getUniformLocation(program, "matrix"),
