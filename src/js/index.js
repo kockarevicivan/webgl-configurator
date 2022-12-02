@@ -136,9 +136,11 @@ const uniformLocations = {
     matrix: gl.getUniformLocation(program, "matrix"),
 };
 
-const matrix = mat4.create();
+const modelMatrix = mat4.create();
+const viewMatrix = mat4.create();
 const projectionMatrix = mat4.create();
-const finalMatrix = mat4.create();
+const mvMatrix = mat4.create();
+const mvpMatrix = mat4.create();
 
 mat4.perspective(projectionMatrix,
     75 * Math.PI/180, // Vertical FOV
@@ -147,20 +149,23 @@ mat4.perspective(projectionMatrix,
     10000 // Far cull distance
     );
 
-mat4.translate(matrix, matrix, [0.2, 0.5, -2]);
-mat4.scale(matrix, matrix, [0.25, 0.25, 0.25]);
-
 function animate() {
     requestAnimationFrame(animate);
 
-    mat4.rotateX(matrix, matrix, Math.PI / 180);
-    mat4.rotateY(matrix, matrix, Math.PI / 90);
-    mat4.rotateZ(matrix, matrix, Math.PI / 270);
+    // Move box
+    mat4.rotateX(modelMatrix, modelMatrix, Math.PI / 180);
+    mat4.rotateY(modelMatrix, modelMatrix, Math.PI / 90);
+    mat4.rotateZ(modelMatrix, modelMatrix, Math.PI / 270);
 
-    mat4.multiply(finalMatrix, projectionMatrix, matrix);
+    // Move camera
+    mat4.translate(viewMatrix, viewMatrix, [0, 0, -0.01]);
 
-    gl.uniformMatrix4fv(uniformLocations.matrix, false, finalMatrix);
+    // M+V
+    mat4.multiply(mvMatrix, viewMatrix, modelMatrix);
+    // M+V+P
+    mat4.multiply(mvpMatrix, projectionMatrix, mvMatrix);
 
+    gl.uniformMatrix4fv(uniformLocations.matrix, false, mvpMatrix);
     gl.drawArrays(gl.TRIANGLES, 0, vertexData.length / 3);
 }
 
