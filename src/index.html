@@ -6,16 +6,29 @@
 
     <link rel="stylesheet" href="/src/css/style.css" />
 </head>
+
 <body>
-    <h1>WebGL Product Configurator</h1>
+    <canvas id="glcanvas" height="480" width="480">
+        Your browser doesn't appear to support the HTML5 <code>&lt;canvas&gt;</code> element.
+    </canvas>
 
-    <canvas id="webgl-canvas" class="webgl-canvas"></canvas>
+    <!-- Shaders -->
+    <script name="shader" data-src="/src/shaders/vertex.glsl" data-type="vertex" data-version="v1"></script>
+    <script name="shader" data-src="/src/shaders/fragment.glsl" data-type="fragment" data-version="v1"></script>
 
+    <!-- Library: Signals processing used for dispatching methods -->
+    <script type="text/javascript" src="/src/js/lib/signals.js" defer></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gl-matrix/2.8.1/gl-matrix-min.js"
         integrity="sha512-zhHQR0/H5SEBL3Wn6yYSaTTZej12z0hVZKOv3TwCUXT1z5qeqGcXJLLrbERYRScEDDpYIJhPC1fk31gqR783iQ=="
         crossorigin="anonymous" defer>
         </script>
-    <script src="/src/js/index.js" defer></script>
+
+    <!-- Library: our common libraries -->
+    <script type="text/javascript" src="/src/js/lib/glUtils.js" defer></script>
+    <script type="text/javascript" src="/src/js/lib/uiUtils.js" defer></script>
+
+    <!-- This is the bulk of the actual WebGL stuff -->
+    <script type="text/javascript" src="/src/js/index.js" defer></script>
 </body>
 
 </html>
