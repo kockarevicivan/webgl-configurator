@@ -1,21 +1,75 @@
 const canvas = document.getElementById("webgl-canvas");
+
+canvas.width = window.innerWidth;
+canvas.height = canvas.width;
+
 const gl = canvas.getContext("webgl");
 
 if (!gl) throw new Error("WebGL not supported!");
 
 
+function getRandomColor() {
+    return [Math.random(), Math.random(), Math.random()];
+}
+
 const vertexData = [
-    0, 1, 0,
-    1, -1, 0,
-    -1, -1, 0,
+
+    // Front
+    0.5, 0.5, 0.5,
+    0.5, -.5, 0.5,
+    -.5, 0.5, 0.5,
+    -.5, 0.5, 0.5,
+    0.5, -.5, 0.5,
+    -.5, -.5, 0.5,
+
+    // Left
+    -.5, 0.5, 0.5,
+    -.5, -.5, 0.5,
+    -.5, 0.5, -.5,
+    -.5, 0.5, -.5,
+    -.5, -.5, 0.5,
+    -.5, -.5, -.5,
+
+    // Back
+    -.5, 0.5, -.5,
+    -.5, -.5, -.5,
+    0.5, 0.5, -.5,
+    0.5, 0.5, -.5,
+    -.5, -.5, -.5,
+    0.5, -.5, -.5,
+
+    // Right
+    0.5, 0.5, -.5,
+    0.5, -.5, -.5,
+    0.5, 0.5, 0.5,
+    0.5, 0.5, 0.5,
+    0.5, -.5, 0.5,
+    0.5, -.5, -.5,
+
+    // Top
+    0.5, 0.5, 0.5,
+    0.5, 0.5, -.5,
+    -.5, 0.5, 0.5,
+    -.5, 0.5, 0.5,
+    0.5, 0.5, -.5,
+    -.5, 0.5, -.5,
+
+    // Bottom
+    0.5, -.5, 0.5,
+    0.5, -.5, -.5,
+    -.5, -.5, 0.5,
+    -.5, -.5, 0.5,
+    0.5, -.5, -.5,
+    -.5, -.5, -.5,
 ];
 
-const colorData = [
-    1, 0, 0,
-    0, 1, 0,
-    0, 0, 1,
-];
-
+let colorData = [];
+for (let face = 0; face < 6; face++) {
+    let faceColor = getRandomColor();
+    for (let vertex = 0; vertex < 6; vertex++) {
+        colorData.push(...faceColor);
+    }
+}
 
 const positionBuffer = gl.createBuffer();
 gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
@@ -89,11 +143,13 @@ mat4.scale(matrix, matrix, [0.25, 0.25, 0.25]);
 function animate() {
     requestAnimationFrame(animate);
 
-    mat4.rotateZ(matrix, matrix, Math.PI / 90);
+    mat4.rotateX(matrix, matrix, Math.PI / 180);
+    mat4.rotateY(matrix, matrix, Math.PI / 90);
+    mat4.rotateZ(matrix, matrix, Math.PI / 270);
 
     gl.uniformMatrix4fv(uniformLocations.matrix, false, matrix);
 
-    gl.drawArrays(gl.TRIANGLES, 0, 3);
+    gl.drawArrays(gl.TRIANGLES, 0, vertexData.length / 3);
 }
 
 animate();
