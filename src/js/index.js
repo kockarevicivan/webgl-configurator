@@ -1,234 +1,235 @@
+const canvas = document.getElementById("webgl-canvas");
+
+canvas.width = window.innerWidth;
+canvas.height = canvas.width;
+
+const gl = canvas.getContext("webgl");
+
+if (!gl) throw new Error("WebGL not supported!");
 
 
-const state = {
-  gl: null,
-  program: null,
-  ui: {
-    pressedKeys: {},
-  },
-  animation: {},
-  app: {
-    eye: {
-      x: 3,
-      y: 3,
-      z: 3,
-    },
-    objects: [],
-  },
-};
+function getRandomColor() {
+    return [Math.random(), Math.random(), Math.random()];
+}
 
-// Create a cube
-function Cube(opts) {
-  var opts = opts || {};
-  this.id = uuid();
-  this.opts = opts;
-  this.attributes = {
-    aColor: {
-      size: 4,
-      offset: 0,
-      bufferData: new Float32Array([
-        0, 1, 1, 1,
-        1, 0, 1, 1,
-        0, 0.5, 0.5, 1,
-        0.5, 1, 1, 1,
-        1, 0.5, 1, 1,
-        1, 1, 0.5, 1,
-        0, 1, 0.5, 1,
-        0.5, 0.5, 1, 1,
-      ]),
-    },
-    aPosition: {
-      size: 4,
-      offset: 0,
-      bufferData: new Float32Array([
-        1, 1, 1, 1,
-        -1, 1, 1, 1,
-        -1, -1, 1, 1,
-        1, -1, 1, 1,
-        1, -1, -1, 1,
-        1, 1, -1, 1,
-        -1, 1, -1, 1,
-        -1, -1, -1, 1,
-      ]),
+const vertexData = [
+
+    // Front
+    0.5, 0.5, 0.5,
+    0.5, -.5, 0.5,
+    -.5, 0.5, 0.5,
+    -.5, 0.5, 0.5,
+    0.5, -.5, 0.5,
+    -.5, -.5, 0.5,
+
+    // Left
+    -.5, 0.5, 0.5,
+    -.5, -.5, 0.5,
+    -.5, 0.5, -.5,
+    -.5, 0.5, -.5,
+    -.5, -.5, 0.5,
+    -.5, -.5, -.5,
+
+    // Back
+    -.5, 0.5, -.5,
+    -.5, -.5, -.5,
+    0.5, 0.5, -.5,
+    0.5, 0.5, -.5,
+    -.5, -.5, -.5,
+    0.5, -.5, -.5,
+
+    // Right
+    0.5, 0.5, -.5,
+    0.5, -.5, -.5,
+    0.5, 0.5, 0.5,
+    0.5, 0.5, 0.5,
+    0.5, -.5, 0.5,
+    0.5, -.5, -.5,
+
+    // Top
+    0.5, 0.5, 0.5,
+    0.5, 0.5, -.5,
+    -.5, 0.5, 0.5,
+    -.5, 0.5, 0.5,
+    0.5, 0.5, -.5,
+    -.5, 0.5, -.5,
+
+    // Bottom
+    0.5, -.5, 0.5,
+    0.5, -.5, -.5,
+    -.5, -.5, 0.5,
+    -.5, -.5, 0.5,
+    0.5, -.5, -.5,
+    -.5, -.5, -.5,
+];
+
+let colorData = [];
+for (let face = 0; face < 6; face++) {
+    let faceColor = getRandomColor();
+    for (let vertex = 0; vertex < 6; vertex++) {
+        colorData.push(...faceColor);
     }
-  };
+}
 
-  this.indices = new Uint8Array([
-    0, 1, 2, 0, 2, 3,    // front
-    0, 3, 4, 0, 4, 5,    // right
-    0, 5, 6, 0, 6, 1,    // up
-    1, 6, 7, 1, 7, 2,    // left
-    7, 4, 3, 7, 3, 2,    // down
-    4, 7, 6, 4, 6, 5,    // back
-  ]);
-  
-  // new modelMatrix for each object
-  this.state = {
-    mm: mat4.create(),
-  };
-  this.selColor = opts.selColor ? opts.selColor : [0, 0, 0, 0];
-  this.stride = opts.stride ? opts.stride : 0;
+function loadTexture(url, callback) {
+    const texture = gl.createTexture();
+    const image = new Image();
 
-  // Functionality
-  this.readState = function () {
-    this.attributes.aColorBackup = this.attributes.aColor;
-    this.attributes.aColor = this.attributes.aSelColor;
-  };
-  this.drawState = function () {
-    this.attributes.aColor = this.attributes.aColorBackup;
-  };
+    image.onload = e => {
+        gl.bindTexture(gl.TEXTURE_2D, texture);
 
-  // Initialization
-  this.init = function (_this) {
-    _this.selColor = _this.selColor.map(function (n) { return n / 255; });
-    var arrays = [
-      _this.selColor, _this.selColor,
-      _this.selColor, _this.selColor,
-      _this.selColor, _this.selColor,
-      _this.selColor, _this.selColor,
-    ];
-    _this.attributes.aSelColor = {
-      size: 4,
-      offset: 0,
-      bufferData: new Float32Array(
-        [].concat.apply([], arrays)
-      ),
+        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image);
+
+        gl.generateMipmap(gl.TEXTURE_2D);
+
+        callback(texture);
     };
-  }(this);
-};
 
-glUtils.SL.init({ callback: function () { main(); } });
+    image.src = url;
 
-function main() {
-  state.canvas = document.getElementById("glcanvas");
-  state.gl = glUtils.checkWebGL(state.canvas, { preserveDrawingBuffer: true });
-  initCallbacks();
-  initShaders();
-  initGL();
-  initState();
-  animate();
+    return texture;
 }
 
-function initCallbacks() {
-  document.onkeydown = keydown;
-  document.onkeyup = keyup;
-  state.canvas.onmousedown = mousedown;
+function repeat(n, pattern) {
+    return [...Array(n)].reduce(sum => sum.concat(pattern), []);
 }
 
-function initShaders() {
-  var vertexShader = glUtils.getShader(state.gl, state.gl.VERTEX_SHADER, glUtils.SL.Shaders.v1.vertex),
-    fragmentShader = glUtils.getShader(state.gl, state.gl.FRAGMENT_SHADER, glUtils.SL.Shaders.v1.fragment);
-  state.program = glUtils.createProgram(state.gl, vertexShader, fragmentShader);
-}
+const uvData = repeat(6, [
+    1, 1, // top right
+    1, 0, // bottom right
+    0, 1, // top left
 
-function initGL() {
-  state.gl.clearColor(0, 0, 0, 1);
-  state.gl.enable(state.gl.DEPTH_TEST);
-  state.gl.useProgram(state.program);
-}
+    0, 1, // top left
+    1, 0, // bottom right
+    0, 0  // bottom left
+]);
 
-function initState() {
-  state.uMVPMatrix = state.gl.getUniformLocation(state.program, 'uMVPMatrix');
-  state.vm = mat4.create();
-  state.pm = mat4.create();
-  state.mvp = mat4.create();
-  state.app.objects = [
-    new Cube(),
-    new Cube({
-      selColor: [223, 1, 20, 0],
-    }),
-  ];
-  // for this example, we're going to arbitrarily translate one cube
-  mat4.translate(state.app.objects[1].state.mm, state.app.objects[1].state.mm, vec3.fromValues(3, 0, 0));
-}
+const positionBuffer = gl.createBuffer();
+gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
+gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertexData), gl.STATIC_DRAW);
+
+const colorBuffer = gl.createBuffer();
+gl.bindBuffer(gl.ARRAY_BUFFER, colorBuffer);
+gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(colorData), gl.STATIC_DRAW);
+
+const uvBuffer = gl.createBuffer();
+gl.bindBuffer(gl.ARRAY_BUFFER, uvBuffer);
+gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(uvData), gl.STATIC_DRAW);
+
+loadTexture(`/src/images/brick.png`, function (brick) {
+    gl.activeTexture(gl.TEXTURE0);
+    gl.bindTexture(gl.TEXTURE_2D, brick);
+});
+
+let uniformLocations;
+(function shaderProgram() {
+    const vertexShader = gl.createShader(gl.VERTEX_SHADER);
+    gl.shaderSource(vertexShader, `
+        precision mediump float;
+
+        attribute vec3 position;
+
+        attribute vec3 color;
+        varying vec3 vColor;
+
+        attribute vec2 uv;
+        varying vec2 vUV;
+
+        uniform mat4 matrix;
+
+        void main() {
+            vColor = color;
+            vUV = uv;
+            gl_Position = matrix * vec4(position, 1);
+        }
+    `);
+    gl.compileShader(vertexShader);
+
+    const fragmentShader = gl.createShader(gl.FRAGMENT_SHADER);
+    gl.shaderSource(fragmentShader, `
+        precision mediump float;
+
+        varying vec3 vColor;
+
+        varying vec2 vUV;
+
+        uniform sampler2D textureID;
+
+        void main() {
+            gl_FragColor = vec4(vColor, 1);
+            gl_FragColor = texture2D(textureID, vUV);
+        }
+    `);
+    gl.compileShader(fragmentShader);
+
+
+    const program = gl.createProgram();
+
+    gl.attachShader(program, vertexShader);
+    gl.attachShader(program, fragmentShader);
+
+    gl.linkProgram(program);
+
+
+    const positionlocation = gl.getAttribLocation(program, "position");
+    gl.enableVertexAttribArray(positionlocation);
+    gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
+    gl.vertexAttribPointer(positionlocation, 3, gl.FLOAT, false, 0, 0);
+
+    const colorLocation = gl.getAttribLocation(program, "color");
+    gl.enableVertexAttribArray(colorLocation);
+    gl.bindBuffer(gl.ARRAY_BUFFER, colorBuffer);
+    gl.vertexAttribPointer(colorLocation, 3, gl.FLOAT, false, 0, 0);
+
+    const uvLocation = gl.getAttribLocation(program, `uv`);
+    gl.enableVertexAttribArray(uvLocation);
+    gl.bindBuffer(gl.ARRAY_BUFFER, uvBuffer);
+    gl.vertexAttribPointer(uvLocation, 2, gl.FLOAT, false, 0, 0);
+
+
+    gl.useProgram(program);
+    gl.enable(gl.DEPTH_TEST);
+
+    uniformLocations = {
+        matrix: gl.getUniformLocation(program, "matrix"),
+        textureID: gl.getUniformLocation(program, 'textureID'),
+    };
+
+    gl.uniform1i(uniformLocations.textureID, 0);
+})();
+
+const modelMatrix = mat4.create();
+const viewMatrix = mat4.create();
+const projectionMatrix = mat4.create();
+const mvMatrix = mat4.create();
+const mvpMatrix = mat4.create();
+
+mat4.perspective(projectionMatrix,
+    75 * Math.PI / 180, // Vertical FOV
+    canvas.width / canvas.height, // Aspect ratio
+    0.0001, // Near cull distance
+    10000 // Far cull distance
+);
 
 function animate() {
-  state.animation.tick = function () {
-    updateState();
-    draw();
-    requestAnimationFrame(state.animation.tick);
-  };
-  state.animation.tick();
+    requestAnimationFrame(animate);
+
+    // Move box
+    mat4.rotateX(modelMatrix, modelMatrix, Math.PI / 180);
+    mat4.rotateY(modelMatrix, modelMatrix, Math.PI / 90);
+    mat4.rotateZ(modelMatrix, modelMatrix, Math.PI / 270);
+
+    // Move camera (invert missing)
+    mat4.translate(viewMatrix, viewMatrix, [0, 0, -0.04]);
+    // mat4.rotateY(viewMatrix, viewMatrix, Math.PI/90);
+
+    // M+V
+    mat4.multiply(mvMatrix, viewMatrix, modelMatrix);
+    // M+V+P
+    mat4.multiply(mvpMatrix, projectionMatrix, mvMatrix);
+
+    gl.uniformMatrix4fv(uniformLocations.matrix, false, mvpMatrix);
+    gl.drawArrays(gl.TRIANGLES, 0, vertexData.length / 3);
 }
 
-function updateState() {
-  var speed = 0.2;
-  if (state.ui.pressedKeys[37]) {
-    // left
-    state.app.eye.x += speed;
-  } else if (state.ui.pressedKeys[39]) {
-    // right
-    state.app.eye.x -= speed;
-  } else if (state.ui.pressedKeys[40]) {
-    // down
-    state.app.eye.y += speed;
-  } else if (state.ui.pressedKeys[38]) {
-    // up
-    state.app.eye.y -= speed;
-  }
-}
-
-function draw(args) {
-  state.gl.clear(state.gl.COLOR_BUFFER_BIT | state.gl.DEPTH_BUFFER_BIT);
-  var uMVPMatrix = state.uMVPMatrix;
-  var vm = state.vm;
-  var pm = state.pm;
-  var mvp = state.mvp;
-  mat4.perspective(pm,
-    20, 1 / 1, 1, 100
-  );
-  mat4.lookAt(vm,
-    vec3.fromValues(state.app.eye.x, state.app.eye.y, state.app.eye.z),
-    vec3.fromValues(0, 0, 0),
-    vec3.fromValues(0, 1, 0)
-  );
-
-  // Loop through each object and draw!
-  for (var i = 0; i < state.app.objects.length; i++) {
-    var obj = state.app.objects[i];
-
-    state.program.renderBuffers(obj);
-    var n = obj.indices.length;
-    mat4.copy(mvp, pm);
-    mat4.multiply(mvp, mvp, vm);
-    mat4.multiply(mvp, mvp, obj.state.mm);
-    state.gl.uniformMatrix4fv(uMVPMatrix, false, mvp);
-    state.gl.drawElements(state.gl.TRIANGLES, n, state.gl.UNSIGNED_BYTE, 0);
-  }
-}
-
-function keydown(event) {
-  state.ui.pressedKeys[event.keyCode] = true;
-}
-
-function keyup(event) {
-  state.ui.pressedKeys[event.keyCode] = false;
-}
-
-function mousedown(event) {
-  state.app.objects.forEach(function (obj) { obj.readState(); });
-  draw();
-  var pixels = Array.from(uiUtils.pixelsFromMouseClick(event, state.canvas, state.gl));
-  var obj = pickObject(pixels);
-  if (obj) {
-    console.log("cube " + obj.id + " selected!");
-    mat4.translate(obj.state.mm, obj.state.mm, vec3.fromValues(0, 1, 0));
-  }
-  state.app.objects.forEach(function (obj) { obj.drawState(); });
-  draw();
-}
-
-function pickObject(pixels) {
-  pixels = pixels.map(function (n) { return n / 255; });
-  return state.app.objects.find(function (obj) {
-    return pixels.length == obj.selColor.length &&
-      pixels.every(function (v, i) { return v === obj.selColor[i]; });
-  });
-}
-
-function uuid() {
-  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
-    var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
-    return v.toString(16);
-  });
-}
+animate();
