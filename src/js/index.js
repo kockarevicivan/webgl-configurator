@@ -1,3 +1,7 @@
+import { getRandomColor, loadTexture, repeat } from "./utils";
+
+import main from "../scss/main.scss";
+
 const canvas = document.getElementById("webgl-canvas");
 
 canvas.width = window.innerWidth;

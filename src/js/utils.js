@@ -1,8 +1,8 @@
-function getRandomColor() {
+export function getRandomColor() {
     return [Math.random(), Math.random(), Math.random()];
 }
 
-function loadTexture(url, gl, callback) {
+export function loadTexture(url, gl, callback) {
     const texture = gl.createTexture();
     const image = new Image();
 
@@ -21,6 +21,6 @@ function loadTexture(url, gl, callback) {
     return texture;
 }
 
-function repeat(n, pattern) {
+export function repeat(n, pattern) {
     return [...Array(n)].reduce(sum => sum.concat(pattern), []);
 }

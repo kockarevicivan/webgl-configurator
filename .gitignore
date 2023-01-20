@@ -103,10 +103,4 @@ dist
 # TernJS port file
 .tern-port
 
-# Compiled styles
-public/css/style.css
-public/css/style.css.map
-
-# App log files
-error.log
-combined.log
+package-lock.json
