@@ -11,6 +11,7 @@
     "fs": "0.0.1-security",
     "sass": "^1.26.5",
     "sass-loader": "^8.0.2",
+    "webgl-obj-loader": "^2.0.8",
     "webpack-cli": "^3.3.11"
   },
   "devDependencies": {

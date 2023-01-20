@@ -1,3 +1,4 @@
+import { downloadMeshes, initMeshBuffers } from "webgl-obj-loader";
 import { getRandomColor, loadTexture, repeat } from "./utils";
 
 import main from "../scss/main.scss";
@@ -18,6 +19,7 @@ const mvpMatrix = mat4.create();
 
 const colorCubeModelMatrix = mat4.create();
 const textureCubeModelMatrix = mat4.create();
+const modelCubeModelMatrix = mat4.create();
 
 const vertexData = [
 
@@ -86,6 +88,16 @@ const uvData = repeat(6, [
     0, 0  // bottom left
 ]);
 
+
+var app = {};
+app.meshes = {};
+
+downloadMeshes({
+    'model': '/assets/models/model.obj',
+}, function (meshes) {
+    app.meshes = meshes;
+    console.log(meshes);
+});
 
 
 loadTexture(`/src/images/brick.png`, gl, function (brick) {
@@ -313,6 +325,114 @@ function textureCube(vertexData, colorData, uvData, modelMatrix) {
     gl.drawArrays(gl.TRIANGLES, 0, vertexData.length / 3);
 }
 
+function modelCube(vertexData, colorData, uvData, modelMatrix) {
+    const positionBuffer = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertexData), gl.STATIC_DRAW);
+
+    // gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indicesBuffer);
+
+    const colorBuffer = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, colorBuffer);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(colorData), gl.STATIC_DRAW);
+
+    const uvBuffer = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, uvBuffer);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(uvData), gl.STATIC_DRAW);
+
+    let uniformLocations;
+    (function shaderProgram() {
+        const vertexShader = gl.createShader(gl.VERTEX_SHADER);
+        gl.shaderSource(vertexShader, `
+        precision mediump float;
+
+        attribute vec3 position;
+
+        attribute vec3 color;
+        varying vec3 vColor;
+
+        attribute vec2 uv;
+        varying vec2 vUV;
+
+        uniform mat4 matrix;
+
+        void main() {
+            vColor = color;
+            vUV = uv;
+            gl_Position = matrix * vec4(position, 1);
+        }
+    `);
+        gl.compileShader(vertexShader);
+
+        const fragmentShader = gl.createShader(gl.FRAGMENT_SHADER);
+        gl.shaderSource(fragmentShader, `
+        precision mediump float;
+
+        varying vec3 vColor;
+
+        varying vec2 vUV;
+
+        uniform sampler2D textureID;
+
+        void main() {
+            gl_FragColor = vec4(vColor, 1);
+            gl_FragColor = texture2D(textureID, vUV);
+        }
+    `);
+        gl.compileShader(fragmentShader);
+
+
+        const program = gl.createProgram();
+
+        gl.attachShader(program, vertexShader);
+        gl.attachShader(program, fragmentShader);
+
+        gl.linkProgram(program);
+
+
+        const positionlocation = gl.getAttribLocation(program, "position");
+        gl.enableVertexAttribArray(positionlocation);
+        gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
+        gl.vertexAttribPointer(positionlocation, 3, gl.FLOAT, false, 0, 0);
+
+        const colorLocation = gl.getAttribLocation(program, "color");
+        gl.enableVertexAttribArray(colorLocation);
+        gl.bindBuffer(gl.ARRAY_BUFFER, colorBuffer);
+        gl.vertexAttribPointer(colorLocation, 3, gl.FLOAT, false, 0, 0);
+
+        const uvLocation = gl.getAttribLocation(program, `uv`);
+        gl.enableVertexAttribArray(uvLocation);
+        gl.bindBuffer(gl.ARRAY_BUFFER, uvBuffer);
+        gl.vertexAttribPointer(uvLocation, 2, gl.FLOAT, false, 0, 0);
+
+
+        gl.useProgram(program);
+        gl.enable(gl.DEPTH_TEST);
+
+        uniformLocations = {
+            matrix: gl.getUniformLocation(program, "matrix"),
+            textureID: gl.getUniformLocation(program, 'textureID'),
+        };
+
+        gl.uniform1i(uniformLocations.textureID, 0);
+    })();
+
+
+    // Move box
+    mat4.rotateX(modelMatrix, modelMatrix, Math.PI / -180);
+    mat4.rotateY(modelMatrix, modelMatrix, Math.PI / 90);
+    mat4.rotateZ(modelMatrix, modelMatrix, Math.PI / 270);
+    mat4.translate(modelMatrix, modelMatrix, [0, 0, 0.06]);
+
+    // M+V
+    mat4.multiply(mvMatrix, viewMatrix, modelMatrix);
+    // M+V+P
+    mat4.multiply(mvpMatrix, projectionMatrix, mvMatrix);
+
+    gl.uniformMatrix4fv(uniformLocations.matrix, false, mvpMatrix);
+    gl.drawArrays(gl.TRIANGLES, 0, vertexData.length);
+}
+
 function animate() {
     requestAnimationFrame(animate);
 
@@ -321,6 +441,10 @@ function animate() {
 
     colorCube(vertexData, colorData, uvData, colorCubeModelMatrix);
     textureCube(vertexData, colorData, uvData, textureCubeModelMatrix);
+
+    if (app.meshes.model) {
+        modelCube(app.meshes.model.vertices, colorData, uvData, modelCubeModelMatrix);
+    }
 }
 
 animate();
