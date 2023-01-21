@@ -1,6 +1,6 @@
 import { downloadMeshes, initMeshBuffers } from "webgl-obj-loader";
 import { getRandomColor, loadTexture, repeat } from "./utils";
-import { getVertexShader, getColorFragmentShader, getTextureFragmentShader } from "./shaders";
+import { getVertexShader, getColorFragmentShader, getTextureFragmentShader, getTextureFragmentShaderPhong } from "./shaders";
 
 import main from "../scss/main.scss";
 import ColorCube from "./models/ColorCube";
@@ -22,11 +22,13 @@ const mvpMatrix = mat4.create();
 const colorCubeModelMatrix = mat4.create();
 const textureCubeModelMatrix = mat4.create();
 const modelCubeModelMatrix = mat4.create();
+
 mat4.translate(modelCubeModelMatrix, modelCubeModelMatrix, [0, -2, 0]);
 
 const vertexShader = getVertexShader(gl);
 const colorFragmentShader = getColorFragmentShader(gl);
 const textureFragmentShader = getTextureFragmentShader(gl);
+const textureFragmentShaderPhong = getTextureFragmentShaderPhong(gl);
 
 // https://developer.mozilla.org/en-US/docs/Web/API/WebGL_API/Tutorial/Creating_3D_objects_using_WebGL
 const vertexData = [
@@ -170,6 +172,8 @@ mat4.perspective(projectionMatrix,
 
 gl.enable(gl.DEPTH_TEST);
 
+
+
 function colorCube(vertexData, colorData, uvData, indices, normals, modelMatrix) {
     const positionBuffer = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
@@ -224,11 +228,13 @@ function colorCube(vertexData, colorData, uvData, indices, normals, modelMatrix)
 
     const uniformLocations = {
         matrix: gl.getUniformLocation(program, "matrix"),
+        model: gl.getUniformLocation(program, "model"),
+        view: gl.getUniformLocation(program, "view"),
+        projection: gl.getUniformLocation(program, "projection"),
         textureID: gl.getUniformLocation(program, 'textureID'),
     };
 
     gl.uniform1i(uniformLocations.textureID, 0);
-
 
     // Move box
     mat4.rotateX(modelMatrix, modelMatrix, Math.PI / -180);
@@ -236,14 +242,15 @@ function colorCube(vertexData, colorData, uvData, indices, normals, modelMatrix)
     mat4.rotateZ(modelMatrix, modelMatrix, Math.PI / 270);
     mat4.translate(modelMatrix, modelMatrix, [0, 0, -0.03]);
 
-
     // M+V
     mat4.multiply(mvMatrix, viewMatrix, modelMatrix);
     // M+V+P
     mat4.multiply(mvpMatrix, projectionMatrix, mvMatrix);
 
     gl.uniformMatrix4fv(uniformLocations.matrix, false, mvpMatrix);
-
+    gl.uniformMatrix4fv(uniformLocations.model, false, modelMatrix);
+    gl.uniformMatrix4fv(uniformLocations.view, false, viewMatrix);
+    gl.uniformMatrix4fv(uniformLocations.projection, false, projectionMatrix);
 
     gl.drawElements(gl.TRIANGLES, indices.length, gl.UNSIGNED_SHORT, 0);
 }
@@ -302,6 +309,9 @@ function textureCube(vertexData, colorData, uvData, indices, normals, modelMatri
 
     const uniformLocations = {
         matrix: gl.getUniformLocation(program, "matrix"),
+        model: gl.getUniformLocation(program, "model"),
+        view: gl.getUniformLocation(program, "view"),
+        projection: gl.getUniformLocation(program, "projection"),
         textureID: gl.getUniformLocation(program, 'textureID'),
     };
 
@@ -320,7 +330,105 @@ function textureCube(vertexData, colorData, uvData, indices, normals, modelMatri
     mat4.multiply(mvpMatrix, projectionMatrix, mvMatrix);
 
     gl.uniformMatrix4fv(uniformLocations.matrix, false, mvpMatrix);
+    gl.uniformMatrix4fv(uniformLocations.model, false, modelMatrix);
+    gl.uniformMatrix4fv(uniformLocations.view, false, viewMatrix);
+    gl.uniformMatrix4fv(uniformLocations.projection, false, projectionMatrix);
 
+
+    gl.drawElements(gl.TRIANGLES, indices.length, gl.UNSIGNED_SHORT, 0);
+}
+
+function textureCubePhong(vertexData, colorData, uvData, indices, normals, modelMatrix) {
+    const positionBuffer = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertexData), gl.STATIC_DRAW);
+
+    const indexBuffer = gl.createBuffer();
+    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indexBuffer);
+    gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(indices), gl.STATIC_DRAW);
+
+    const colorBuffer = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, colorBuffer);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(colorData), gl.STATIC_DRAW);
+
+    const uvBuffer = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, uvBuffer);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(uvData), gl.STATIC_DRAW);
+
+    const normalBuffer = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, normalBuffer);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(normals), gl.STATIC_DRAW);
+
+    const program = gl.createProgram();
+
+    gl.attachShader(program, vertexShader);
+    gl.attachShader(program, textureFragmentShaderPhong);
+
+    gl.linkProgram(program);
+
+
+    const positionlocation = gl.getAttribLocation(program, "position");
+    gl.enableVertexAttribArray(positionlocation);
+    gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
+    gl.vertexAttribPointer(positionlocation, 3, gl.FLOAT, false, 0, 0);
+
+    const colorLocation = gl.getAttribLocation(program, "color");
+    gl.enableVertexAttribArray(colorLocation);
+    gl.bindBuffer(gl.ARRAY_BUFFER, colorBuffer);
+    gl.vertexAttribPointer(colorLocation, 3, gl.FLOAT, false, 0, 0);
+
+    const uvLocation = gl.getAttribLocation(program, `uv`);
+    gl.enableVertexAttribArray(uvLocation);
+    gl.bindBuffer(gl.ARRAY_BUFFER, uvBuffer);
+    gl.vertexAttribPointer(uvLocation, 2, gl.FLOAT, false, 0, 0);
+
+    const normalLocation = gl.getAttribLocation(program, "normal");
+    gl.enableVertexAttribArray(normalLocation);
+    gl.bindBuffer(gl.ARRAY_BUFFER, normalBuffer);
+    gl.vertexAttribPointer(normalLocation, 3, gl.FLOAT, false, 0, 0);
+
+
+    gl.useProgram(program);
+
+    const uniformLocations = {
+        matrix: gl.getUniformLocation(program, "matrix"),
+        model: gl.getUniformLocation(program, "model"),
+        view: gl.getUniformLocation(program, "view"),
+        projection: gl.getUniformLocation(program, "projection"),
+        textureID: gl.getUniformLocation(program, "textureID"),
+        cameraPosition: gl.getUniformLocation(program, "cameraPosition"),
+        light: gl.getUniformLocation(program, "light"),
+        specularAmount: gl.getUniformLocation(program, "specularAmount"),
+        specularShininess: gl.getUniformLocation(program, "specularShininess"),
+    };
+
+    gl.uniform1i(uniformLocations.textureID, 0);
+
+
+    // Move box
+    mat4.rotateX(modelMatrix, modelMatrix, Math.PI / 180);
+    mat4.rotateY(modelMatrix, modelMatrix, Math.PI / 90);
+    mat4.rotateZ(modelMatrix, modelMatrix, Math.PI / 270);
+
+
+    // M+V
+    mat4.multiply(mvMatrix, viewMatrix, modelMatrix);
+    // M+V+P
+    mat4.multiply(mvpMatrix, projectionMatrix, mvMatrix);
+
+
+
+
+
+    gl.uniformMatrix4fv(uniformLocations.matrix, false, mvpMatrix);
+    gl.uniformMatrix4fv(uniformLocations.model, false, modelMatrix);
+    gl.uniformMatrix4fv(uniformLocations.view, false, viewMatrix);
+    gl.uniformMatrix4fv(uniformLocations.projection, false, projectionMatrix);
+    // Update the uniform values
+    gl.uniform3fv(uniformLocations.cameraPosition, [0, 0, -10]);
+    gl.uniform3fv(uniformLocations.light, [0, 0, -1]);
+    gl.uniform1f(uniformLocations.specularAmount, 1);
+    gl.uniform1f(uniformLocations.specularShininess, 1);
 
     gl.drawElements(gl.TRIANGLES, indices.length, gl.UNSIGNED_SHORT, 0);
 }
@@ -334,8 +442,11 @@ function modelCube(mesh, modelMatrix) {
     gl.linkProgram(program);
     gl.useProgram(program);
 
-    let uniformLocations = {
+    const uniformLocations = {
         matrix: gl.getUniformLocation(program, "matrix"),
+        model: gl.getUniformLocation(program, "model"),
+        view: gl.getUniformLocation(program, "view"),
+        projection: gl.getUniformLocation(program, "projection"),
         textureID: gl.getUniformLocation(program, 'textureID'),
     };
 
@@ -353,6 +464,9 @@ function modelCube(mesh, modelMatrix) {
     mat4.multiply(mvpMatrix, projectionMatrix, mvMatrix);
 
     gl.uniformMatrix4fv(uniformLocations.matrix, false, mvpMatrix);
+    gl.uniformMatrix4fv(uniformLocations.model, false, modelMatrix);
+    gl.uniformMatrix4fv(uniformLocations.view, false, viewMatrix);
+    gl.uniformMatrix4fv(uniformLocations.projection, false, projectionMatrix);
 
     function drawMesh(mesh, shaderProgram) {
         // make sure you have vertex, vertex normal, and texture coordinate
@@ -400,18 +514,21 @@ function modelCube(mesh, modelMatrix) {
 }
 
 
+// Move camera (invert missing)
+mat4.translate(viewMatrix, viewMatrix, [0, 0, -10]);
+
 
 function animate() {
     requestAnimationFrame(animate);
 
-    // Move camera (invert missing)
-    mat4.translate(viewMatrix, viewMatrix, [0, 0, -0.02]);
+    
 
-    colorCube(vertexData, colorData, uvData, indices, normals, colorCubeModelMatrix);
-    textureCube(vertexData, colorData, uvData, indices, normals, textureCubeModelMatrix);
+    // colorCube(vertexData, colorData, uvData, indices, normals, colorCubeModelMatrix);
+    // textureCube(vertexData, colorData, uvData, indices, normals, textureCubeModelMatrix);
+    textureCubePhong(vertexData, colorData, uvData, indices, normals, textureCubeModelMatrix);
 
     if (app.meshes.model) {
-        modelCube(app.meshes.model, modelCubeModelMatrix);
+        // modelCube(app.meshes.model, modelCubeModelMatrix);
     }
 }
 
