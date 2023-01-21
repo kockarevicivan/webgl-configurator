@@ -24,7 +24,6 @@ const textureCubeModelMatrix = mat4.create();
 const modelCubeModelMatrix = mat4.create();
 const modelCubeModelPhongMatrix = mat4.create();
 
-mat4.translate(modelCubeModelMatrix, modelCubeModelMatrix, [0, -2, 0]);
 
 const vertexShader = getVertexShader(gl);
 const colorFragmentShader = getColorFragmentShader(gl);
@@ -427,7 +426,7 @@ function textureCubePhong(vertexData, colorData, uvData, indices, normals, model
     gl.uniformMatrix4fv(uniformLocations.projection, false, projectionMatrix);
     // Update the uniform values
     gl.uniform3fv(uniformLocations.cameraPosition, [0, 0, -10]);
-    gl.uniform3fv(uniformLocations.light, [0, -2, 2]);
+    gl.uniform3fv(uniformLocations.light, [0, 0, 0]);
     gl.uniform1f(uniformLocations.specularAmount, 1);
     gl.uniform1f(uniformLocations.specularShininess, 1);
 
@@ -553,7 +552,7 @@ function modelCubePhong(mesh, modelMatrix) {
     gl.uniformMatrix4fv(uniformLocations.projection, false, projectionMatrix);
     // Update the uniform values
     gl.uniform3fv(uniformLocations.cameraPosition, [0, 0, -10]);
-    gl.uniform3fv(uniformLocations.light, [0, 10, 10]);
+    gl.uniform3fv(uniformLocations.light, [0, 0, -10]);
     gl.uniform1f(uniformLocations.specularAmount, 10);
     gl.uniform1f(uniformLocations.specularShininess, 5);
 

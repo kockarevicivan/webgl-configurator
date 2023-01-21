@@ -137,7 +137,7 @@ export const getTextureFragmentShaderPhong = (gl) => {
             );
 
             float lightDotProduct = dot(normalize(vNormal), light);
-            float surfaceBrightness = max(0.2, lightDotProduct);
+            float surfaceBrightness = max(0.0, lightDotProduct);
 
             vec4 specularColor = vec4(1.0, 1.0, 1.0, 1.0);
 
