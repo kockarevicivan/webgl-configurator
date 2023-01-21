@@ -18,7 +18,7 @@ export const getVertexShader = (gl) => {
         uniform mat4 matrix;
 
         void main() {
-            vNormal = normal;
+            vNormal = (matrix * vec4(normal, 0.0)).xyz;
             vColor = color;
             vUV = uv;
             gl_Position = matrix * vec4(position, 1);
@@ -43,8 +43,18 @@ export const getFragmentShader = (gl) => {
         uniform sampler2D textureID;
 
         void main() {
-            gl_FragColor = vec4(vColor, 1);
-            gl_FragColor = texture2D(textureID, vUV);
+            vec3 ambientLightIntensity = vec3(0.1, 0.1, 0.1);
+            vec3 sunlightIntensity = vec3(0.7, 0.6, 0.4);
+            vec3 sunlightDirection = normalize(vec3(0.0, 4.0, 0.0));
+
+            vec4 texel = texture2D(textureID, vUV);
+
+            vec3 lightIntensity = ambientLightIntensity + sunlightIntensity * max(dot(vNormal, sunlightDirection), 0.0);
+
+            gl_FragColor = vec4(texel.rgb + lightIntensity, texel.a);
+
+            //gl_FragColor = vec4(vColor, 1);
+            //gl_FragColor = texture2D(textureID, vUV);
         }
     `);
 

@@ -22,6 +22,7 @@ const mvpMatrix = mat4.create();
 const colorCubeModelMatrix = mat4.create();
 const textureCubeModelMatrix = mat4.create();
 const modelCubeModelMatrix = mat4.create();
+mat4.translate(modelCubeModelMatrix, modelCubeModelMatrix, [0, -2, 0]);
 
 const vertexShader = getVertexShader(gl);
 const fragmentShader = getFragmentShader(gl);
@@ -105,7 +106,7 @@ downloadMeshes({
 });
 
 
-loadTexture(`/src/images/brick.png`, gl, function (brick) {
+loadTexture(`/assets/models/pattern.png`, gl, function (brick) {
     gl.activeTexture(gl.TEXTURE0);
     gl.bindTexture(gl.TEXTURE_2D, brick);
 });
@@ -272,7 +273,7 @@ function modelCube(mesh, modelMatrix) {
     mat4.rotateX(modelMatrix, modelMatrix, Math.PI / -180);
     mat4.rotateY(modelMatrix, modelMatrix, Math.PI / 90);
     mat4.rotateZ(modelMatrix, modelMatrix, Math.PI / 270);
-    mat4.translate(modelMatrix, modelMatrix, [0, 0, 0.06]);
+    mat4.translate(modelMatrix, modelMatrix, [0, 0, 0.03]);
 
     // M+V
     mat4.multiply(mvMatrix, viewMatrix, modelMatrix);
@@ -331,7 +332,7 @@ function animate() {
     requestAnimationFrame(animate);
 
     // Move camera (invert missing)
-    mat4.translate(viewMatrix, viewMatrix, [0, 0, -0.04]);
+    mat4.translate(viewMatrix, viewMatrix, [0, 0, -0.02]);
 
     colorCube(vertexData, colorData, uvData, colorCubeModelMatrix);
     textureCube(vertexData, colorData, uvData, textureCubeModelMatrix);
