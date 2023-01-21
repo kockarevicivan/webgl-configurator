@@ -1,6 +1,6 @@
 import { downloadMeshes, initMeshBuffers } from "webgl-obj-loader";
 import { getRandomColor, loadTexture, repeat } from "./utils";
-import { getVertexShader, getFragmentShader } from "./shaders";
+import { getVertexShader, getColorFragmentShader, getTextureFragmentShader } from "./shaders";
 
 import main from "../scss/main.scss";
 import ColorCube from "./models/ColorCube";
@@ -25,74 +25,69 @@ const modelCubeModelMatrix = mat4.create();
 mat4.translate(modelCubeModelMatrix, modelCubeModelMatrix, [0, -2, 0]);
 
 const vertexShader = getVertexShader(gl);
-const fragmentShader = getFragmentShader(gl);
+const colorFragmentShader = getColorFragmentShader(gl);
+const textureFragmentShader = getTextureFragmentShader(gl);
 
 const vertexData = [
-
-    // Front
-    0.5, 0.5, 0.5,
-    0.5, -.5, 0.5,
-    -.5, 0.5, 0.5,
-    -.5, 0.5, 0.5,
-    0.5, -.5, 0.5,
-    -.5, -.5, 0.5,
-
-    // Left
-    -.5, 0.5, 0.5,
-    -.5, -.5, 0.5,
-    -.5, 0.5, -.5,
-    -.5, 0.5, -.5,
-    -.5, -.5, 0.5,
-    -.5, -.5, -.5,
-
-    // Back
-    -.5, 0.5, -.5,
-    -.5, -.5, -.5,
-    0.5, 0.5, -.5,
-    0.5, 0.5, -.5,
-    -.5, -.5, -.5,
-    0.5, -.5, -.5,
-
-    // Right
-    0.5, 0.5, -.5,
-    0.5, -.5, -.5,
-    0.5, 0.5, 0.5,
-    0.5, 0.5, 0.5,
-    0.5, -.5, 0.5,
-    0.5, -.5, -.5,
-
-    // Top
-    0.5, 0.5, 0.5,
-    0.5, 0.5, -.5,
-    -.5, 0.5, 0.5,
-    -.5, 0.5, 0.5,
-    0.5, 0.5, -.5,
-    -.5, 0.5, -.5,
-
-    // Bottom
-    0.5, -.5, 0.5,
-    0.5, -.5, -.5,
-    -.5, -.5, 0.5,
-    -.5, -.5, 0.5,
-    0.5, -.5, -.5,
-    -.5, -.5, -.5,
+    -1, -1, 1, //0
+    1, -1, 1, //1
+    -1, 1, 1, //2
+    1, 1, 1, //3
+    -1, -1, -1, //4
+    1, -1, -1, //5
+    -1, 1, -1, //6
+    1, 1, -1  //7
 ];
 
-let colorData = repeat(12, [
-    1, 0, 0,
-    0, 1, 0,
-    0, 0, 1
-]);
+const indices = [
+    //Top
+    2, 6, 7,
+    2, 3, 7,
 
-const uvData = repeat(6, [
-    1, 1, // top right
-    1, 0, // bottom right
-    0, 1, // top left
+    //Bottom
+    0, 4, 5,
+    0, 1, 5,
 
-    0, 1, // top left
-    1, 0, // bottom right
-    0, 0  // bottom left
-]);
+    //Left
+    0, 2, 6,
+    0, 4, 6,
+
+    //Right
+    1, 3, 7,
+    1, 5, 7,
+
+    //Front
+    0, 2, 3,
+    0, 1, 3,
+
+    //Back
+    4, 6, 7,
+    4, 5, 7
+];
+
+let colorData = [
+    1.0, 1.0, 1.0, 1.0, // Front face: white
+    1.0, 0.0, 0.0, 1.0, // Back face: red
+    0.0, 1.0, 0.0, 1.0, // Top face: green
+    0.0, 0.0, 1.0, 1.0, // Bottom face: blue
+    1.0, 1.0, 0.0, 1.0, // Right face: yellow
+    1.0, 0.0, 1.0, 1.0, // Left face: purple
+];
+
+const uvData = [
+    // Front
+    0.0, 0.0, 1.0, 0.0, 1.0, 1.0, 0.0, 1.0,
+    // Back
+    0.0, 0.0, 1.0, 0.0, 1.0, 1.0, 0.0, 1.0,
+    // Top
+    0.0, 0.0, 1.0, 0.0, 1.0, 1.0, 0.0, 1.0,
+    // Bottom
+    0.0, 0.0, 1.0, 0.0, 1.0, 1.0, 0.0, 1.0,
+    // Right
+    0.0, 0.0, 1.0, 0.0, 1.0, 1.0, 0.0, 1.0,
+    // Left
+    0.0, 0.0, 1.0, 0.0, 1.0, 1.0, 0.0, 1.0,
+];
 
 
 var app = {};
@@ -120,12 +115,14 @@ mat4.perspective(projectionMatrix,
 
 gl.enable(gl.DEPTH_TEST);
 
-
-
-function colorCube(vertexData, colorData, uvData, modelMatrix) {
+function colorCube(vertexData, colorData, uvData, indices, modelMatrix) {
     const positionBuffer = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
     gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertexData), gl.STATIC_DRAW);
+
+    const indexBuffer = gl.createBuffer();
+    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indexBuffer);
+    gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(indices), gl.STATIC_DRAW);
 
     const colorBuffer = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, colorBuffer);
@@ -135,12 +132,10 @@ function colorCube(vertexData, colorData, uvData, modelMatrix) {
     gl.bindBuffer(gl.ARRAY_BUFFER, uvBuffer);
     gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(uvData), gl.STATIC_DRAW);
 
-    let uniformLocations;
-    //
     const program = gl.createProgram();
 
     gl.attachShader(program, vertexShader);
-    gl.attachShader(program, fragmentShader);
+    gl.attachShader(program, colorFragmentShader);
 
     gl.linkProgram(program);
 
@@ -163,20 +158,19 @@ function colorCube(vertexData, colorData, uvData, modelMatrix) {
 
     gl.useProgram(program);
 
-    uniformLocations = {
+    const uniformLocations = {
         matrix: gl.getUniformLocation(program, "matrix"),
         textureID: gl.getUniformLocation(program, 'textureID'),
     };
 
     gl.uniform1i(uniformLocations.textureID, 0);
-    //
 
 
     // Move box
-    mat4.rotateX(modelMatrix, modelMatrix, Math.PI / 180);
-    mat4.rotateY(modelMatrix, modelMatrix, Math.PI / -90);
+    mat4.rotateX(modelMatrix, modelMatrix, Math.PI / -180);
+    mat4.rotateY(modelMatrix, modelMatrix, Math.PI / 90);
     mat4.rotateZ(modelMatrix, modelMatrix, Math.PI / 270);
-    mat4.translate(modelMatrix, modelMatrix, [0, 0, -0.04]);
+    mat4.translate(modelMatrix, modelMatrix, [0, 0, -0.03]);
 
 
     // M+V
@@ -185,13 +179,19 @@ function colorCube(vertexData, colorData, uvData, modelMatrix) {
     mat4.multiply(mvpMatrix, projectionMatrix, mvMatrix);
 
     gl.uniformMatrix4fv(uniformLocations.matrix, false, mvpMatrix);
-    gl.drawArrays(gl.TRIANGLES, 0, vertexData.length / 3);
+
+    
+    gl.drawElements(gl.TRIANGLES, indices.length, gl.UNSIGNED_SHORT, 0);
 }
 
-function textureCube(vertexData, colorData, uvData, modelMatrix) {
+function textureCube(vertexData, colorData, uvData, indices, modelMatrix) {
     const positionBuffer = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
     gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertexData), gl.STATIC_DRAW);
+
+    const indexBuffer = gl.createBuffer();
+    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indexBuffer);
+    gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(indices), gl.STATIC_DRAW);
 
     const colorBuffer = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, colorBuffer);
@@ -201,12 +201,10 @@ function textureCube(vertexData, colorData, uvData, modelMatrix) {
     gl.bindBuffer(gl.ARRAY_BUFFER, uvBuffer);
     gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(uvData), gl.STATIC_DRAW);
 
-    let uniformLocations;
-    //
     const program = gl.createProgram();
 
     gl.attachShader(program, vertexShader);
-    gl.attachShader(program, fragmentShader);
+    gl.attachShader(program, textureFragmentShader);
 
     gl.linkProgram(program);
 
@@ -229,13 +227,12 @@ function textureCube(vertexData, colorData, uvData, modelMatrix) {
 
     gl.useProgram(program);
 
-    uniformLocations = {
+    const uniformLocations = {
         matrix: gl.getUniformLocation(program, "matrix"),
         textureID: gl.getUniformLocation(program, 'textureID'),
     };
 
     gl.uniform1i(uniformLocations.textureID, 0);
-    //
 
 
     // Move box
@@ -250,14 +247,16 @@ function textureCube(vertexData, colorData, uvData, modelMatrix) {
     mat4.multiply(mvpMatrix, projectionMatrix, mvMatrix);
 
     gl.uniformMatrix4fv(uniformLocations.matrix, false, mvpMatrix);
-    gl.drawArrays(gl.TRIANGLES, 0, vertexData.length / 3);
+
+
+    gl.drawElements(gl.TRIANGLES, indices.length, gl.UNSIGNED_SHORT, 0);
 }
 
 function modelCube(mesh, modelMatrix) {
     const program = gl.createProgram();
 
     gl.attachShader(program, vertexShader);
-    gl.attachShader(program, fragmentShader);
+    gl.attachShader(program, textureFragmentShader);
 
     gl.linkProgram(program);
     gl.useProgram(program);
@@ -282,51 +281,52 @@ function modelCube(mesh, modelMatrix) {
 
     gl.uniformMatrix4fv(uniformLocations.matrix, false, mvpMatrix);
 
-    drawMesh(mesh, program);
+    function drawMesh(mesh, shaderProgram) {
+        // make sure you have vertex, vertex normal, and texture coordinate
+        // attributes located in your shaders and attach them to the shader program
+        shaderProgram.vertexPositionAttribute = gl.getAttribLocation(shaderProgram, "position");
+        gl.enableVertexAttribArray(shaderProgram.vertexPositionAttribute);
 
-}
+        shaderProgram.vertexNormalAttribute = gl.getAttribLocation(shaderProgram, "normal");
+        gl.enableVertexAttribArray(shaderProgram.vertexNormalAttribute);
 
-function drawMesh(mesh, shaderProgram) {
-    // make sure you have vertex, vertex normal, and texture coordinate
-    // attributes located in your shaders and attach them to the shader program
-    shaderProgram.vertexPositionAttribute = gl.getAttribLocation(shaderProgram, "position");
-    gl.enableVertexAttribArray(shaderProgram.vertexPositionAttribute);
-
-    shaderProgram.vertexNormalAttribute = gl.getAttribLocation(shaderProgram, "normal");
-    gl.enableVertexAttribArray(shaderProgram.vertexNormalAttribute);
-
-    shaderProgram.textureCoordAttribute = gl.getAttribLocation(shaderProgram, "uv");
-    gl.enableVertexAttribArray(shaderProgram.textureCoordAttribute);
-
-    // create and initialize the vertex, vertex normal, and texture coordinate buffers
-    // and save on to the mesh object
-    initMeshBuffers(gl, mesh);
-
-    // now to render the mesh
-    gl.bindBuffer(gl.ARRAY_BUFFER, mesh.vertexBuffer);
-    gl.vertexAttribPointer(shaderProgram.vertexPositionAttribute, mesh.vertexBuffer.itemSize, gl.FLOAT, false, 0, 0);
-
-    // it's possible that the mesh doesn't contain
-    // any texture coordinates (e.g. suzanne.obj in the development branch).
-    // in this case, the texture vertexAttribArray will need to be disabled
-    // before the call to drawElements
-    if (!mesh.textures.length) {
-        gl.disableVertexAttribArray(shaderProgram.textureCoordAttribute);
-    }
-    else {
-        // if the texture vertexAttribArray has been previously
-        // disabled, then it needs to be re-enabled
+        shaderProgram.textureCoordAttribute = gl.getAttribLocation(shaderProgram, "uv");
         gl.enableVertexAttribArray(shaderProgram.textureCoordAttribute);
-        gl.bindBuffer(gl.ARRAY_BUFFER, mesh.textureBuffer);
-        gl.vertexAttribPointer(shaderProgram.textureCoordAttribute, mesh.textureBuffer.itemSize, gl.FLOAT, false, 0, 0);
+
+        // create and initialize the vertex, vertex normal, and texture coordinate buffers
+        // and save on to the mesh object
+        initMeshBuffers(gl, mesh);
+
+        // now to render the mesh
+        gl.bindBuffer(gl.ARRAY_BUFFER, mesh.vertexBuffer);
+        gl.vertexAttribPointer(shaderProgram.vertexPositionAttribute, mesh.vertexBuffer.itemSize, gl.FLOAT, false, 0, 0);
+
+        // it's possible that the mesh doesn't contain
+        // any texture coordinates (e.g. suzanne.obj in the development branch).
+        // in this case, the texture vertexAttribArray will need to be disabled
+        // before the call to drawElements
+        if (!mesh.textures.length) {
+            gl.disableVertexAttribArray(shaderProgram.textureCoordAttribute);
+        }
+        else {
+            // if the texture vertexAttribArray has been previously
+            // disabled, then it needs to be re-enabled
+            gl.enableVertexAttribArray(shaderProgram.textureCoordAttribute);
+            gl.bindBuffer(gl.ARRAY_BUFFER, mesh.textureBuffer);
+            gl.vertexAttribPointer(shaderProgram.textureCoordAttribute, mesh.textureBuffer.itemSize, gl.FLOAT, false, 0, 0);
+        }
+
+        gl.bindBuffer(gl.ARRAY_BUFFER, mesh.normalBuffer);
+        gl.vertexAttribPointer(shaderProgram.vertexNormalAttribute, mesh.normalBuffer.itemSize, gl.FLOAT, false, 0, 0);
+
+        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, mesh.indexBuffer);
+        gl.drawElements(gl.TRIANGLES, mesh.indexBuffer.numItems, gl.UNSIGNED_SHORT, 0);
     }
 
-    gl.bindBuffer(gl.ARRAY_BUFFER, mesh.normalBuffer);
-    gl.vertexAttribPointer(shaderProgram.vertexNormalAttribute, mesh.normalBuffer.itemSize, gl.FLOAT, false, 0, 0);
-
-    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, mesh.indexBuffer);
-    gl.drawElements(gl.TRIANGLES, mesh.indexBuffer.numItems, gl.UNSIGNED_SHORT, 0);
+    drawMesh(mesh, program);
 }
+
+
 
 function animate() {
     requestAnimationFrame(animate);
@@ -334,8 +334,8 @@ function animate() {
     // Move camera (invert missing)
     mat4.translate(viewMatrix, viewMatrix, [0, 0, -0.02]);
 
-    colorCube(vertexData, colorData, uvData, colorCubeModelMatrix);
-    textureCube(vertexData, colorData, uvData, textureCubeModelMatrix);
+    colorCube(vertexData, colorData, uvData, indices, colorCubeModelMatrix);
+    textureCube(vertexData, colorData, uvData, indices, textureCubeModelMatrix);
 
     if (app.meshes.model) {
         modelCube(app.meshes.model, modelCubeModelMatrix);
