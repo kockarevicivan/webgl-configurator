@@ -31,12 +31,12 @@ const state = {
     nearCullDistance: 0.0001,
     farCullDistance: 10000,
 
-    cameraPosition: [0, -5, -10],
+    cameraPosition: [0, -3.5, -7],
     pointLightLocation: [0, 5, -3],
     specularColor: [0, 0, 0],
     specularAmount: 0.5,
     specularShininess: 50,
-    ambientLightIntensity: [0.4, 0.4, 0.4],
+    ambientLightIntensity: [0.6, 0.6, 0.6],
     sunlightIntensity: [1, 1, 1],
     sunlightDirection: [0.0, 0.0, 0.0],
 
@@ -223,7 +223,7 @@ mat4.scale(state.matrices.middleTileModelMatrix, state.matrices.middleTileModelM
 mat4.scale(state.matrices.upperTileModelMatrix, state.matrices.upperTileModelMatrix, [0.5, 0.25, 0.5]);
 
 // Set the statue
-mat4.translate(state.matrices.statueModelMatrix, state.matrices.statueModelMatrix, [0, 3, -0.2]);
+mat4.translate(state.matrices.statueModelMatrix, state.matrices.statueModelMatrix, [0, 1.5, -0.2]);
 
 function animate() {
     requestAnimationFrame(animate);
