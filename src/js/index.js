@@ -298,9 +298,12 @@ function animate() {
         state.pointLightLocation[2] -= 0.3;
     }
 
-    shape(vertexData, colorData, uvData, indices, normals, state.matrices.lowerTileModelMatrix, vertexShader, colorFragmentShader);
+    shape(vertexData, colorData, uvData, indices, normals, state.matrices.lowerTileModelMatrix, vertexShader, textureFragmentShaderPhong);
+    mat4.rotateY(state.matrices.lowerTileModelMatrix, state.matrices.lowerTileModelMatrix, Math.PI / 720);
     shape(vertexData, colorData, uvData, indices, normals, state.matrices.middleTileModelMatrix, vertexShader, textureFragmentShaderPhong);
+    mat4.rotateY(state.matrices.middleTileModelMatrix, state.matrices.middleTileModelMatrix, -Math.PI / 720);
     shape(vertexData, colorData, uvData, indices, normals, state.matrices.upperTileModelMatrix, vertexShader, textureFragmentShaderPhong);
+    mat4.rotateY(state.matrices.upperTileModelMatrix, state.matrices.upperTileModelMatrix, Math.PI / 720);
 
     if (state.meshes.model) {
         mesh(state.meshes.model, state.matrices.statueModelMatrix, vertexShader, textureFragmentShaderPhong);
