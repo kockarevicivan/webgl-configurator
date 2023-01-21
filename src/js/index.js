@@ -98,10 +98,10 @@ var app = {};
 app.meshes = {};
 
 downloadMeshes({
-    'model': '/assets/models/model.obj',
+    'model': '/assets/models/statue.obj',
 }, function (meshes) {
     app.meshes = meshes;
-    console.log(meshes);
+    console.log(meshes.model);
 });
 
 
@@ -136,38 +136,38 @@ function colorCube(vertexData, colorData, uvData, modelMatrix) {
 
     let uniformLocations;
     //
-        const program = gl.createProgram();
+    const program = gl.createProgram();
 
-        gl.attachShader(program, vertexShader);
-        gl.attachShader(program, fragmentShader);
+    gl.attachShader(program, vertexShader);
+    gl.attachShader(program, fragmentShader);
 
-        gl.linkProgram(program);
-
-
-        const positionlocation = gl.getAttribLocation(program, "position");
-        gl.enableVertexAttribArray(positionlocation);
-        gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
-        gl.vertexAttribPointer(positionlocation, 3, gl.FLOAT, false, 0, 0);
-
-        const colorLocation = gl.getAttribLocation(program, "color");
-        gl.enableVertexAttribArray(colorLocation);
-        gl.bindBuffer(gl.ARRAY_BUFFER, colorBuffer);
-        gl.vertexAttribPointer(colorLocation, 3, gl.FLOAT, false, 0, 0);
-
-        const uvLocation = gl.getAttribLocation(program, `uv`);
-        gl.enableVertexAttribArray(uvLocation);
-        gl.bindBuffer(gl.ARRAY_BUFFER, uvBuffer);
-        gl.vertexAttribPointer(uvLocation, 2, gl.FLOAT, false, 0, 0);
+    gl.linkProgram(program);
 
 
-        gl.useProgram(program);
+    const positionlocation = gl.getAttribLocation(program, "position");
+    gl.enableVertexAttribArray(positionlocation);
+    gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
+    gl.vertexAttribPointer(positionlocation, 3, gl.FLOAT, false, 0, 0);
 
-        uniformLocations = {
-            matrix: gl.getUniformLocation(program, "matrix"),
-            textureID: gl.getUniformLocation(program, 'textureID'),
-        };
+    const colorLocation = gl.getAttribLocation(program, "color");
+    gl.enableVertexAttribArray(colorLocation);
+    gl.bindBuffer(gl.ARRAY_BUFFER, colorBuffer);
+    gl.vertexAttribPointer(colorLocation, 3, gl.FLOAT, false, 0, 0);
 
-        gl.uniform1i(uniformLocations.textureID, 0);
+    const uvLocation = gl.getAttribLocation(program, `uv`);
+    gl.enableVertexAttribArray(uvLocation);
+    gl.bindBuffer(gl.ARRAY_BUFFER, uvBuffer);
+    gl.vertexAttribPointer(uvLocation, 2, gl.FLOAT, false, 0, 0);
+
+
+    gl.useProgram(program);
+
+    uniformLocations = {
+        matrix: gl.getUniformLocation(program, "matrix"),
+        textureID: gl.getUniformLocation(program, 'textureID'),
+    };
+
+    gl.uniform1i(uniformLocations.textureID, 0);
     //
 
 
@@ -202,38 +202,38 @@ function textureCube(vertexData, colorData, uvData, modelMatrix) {
 
     let uniformLocations;
     //
-        const program = gl.createProgram();
+    const program = gl.createProgram();
 
-        gl.attachShader(program, vertexShader);
-        gl.attachShader(program, fragmentShader);
+    gl.attachShader(program, vertexShader);
+    gl.attachShader(program, fragmentShader);
 
-        gl.linkProgram(program);
-
-
-        const positionlocation = gl.getAttribLocation(program, "position");
-        gl.enableVertexAttribArray(positionlocation);
-        gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
-        gl.vertexAttribPointer(positionlocation, 3, gl.FLOAT, false, 0, 0);
-
-        const colorLocation = gl.getAttribLocation(program, "color");
-        gl.enableVertexAttribArray(colorLocation);
-        gl.bindBuffer(gl.ARRAY_BUFFER, colorBuffer);
-        gl.vertexAttribPointer(colorLocation, 3, gl.FLOAT, false, 0, 0);
-
-        const uvLocation = gl.getAttribLocation(program, `uv`);
-        gl.enableVertexAttribArray(uvLocation);
-        gl.bindBuffer(gl.ARRAY_BUFFER, uvBuffer);
-        gl.vertexAttribPointer(uvLocation, 2, gl.FLOAT, false, 0, 0);
+    gl.linkProgram(program);
 
 
-        gl.useProgram(program);
+    const positionlocation = gl.getAttribLocation(program, "position");
+    gl.enableVertexAttribArray(positionlocation);
+    gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
+    gl.vertexAttribPointer(positionlocation, 3, gl.FLOAT, false, 0, 0);
 
-        uniformLocations = {
-            matrix: gl.getUniformLocation(program, "matrix"),
-            textureID: gl.getUniformLocation(program, 'textureID'),
-        };
+    const colorLocation = gl.getAttribLocation(program, "color");
+    gl.enableVertexAttribArray(colorLocation);
+    gl.bindBuffer(gl.ARRAY_BUFFER, colorBuffer);
+    gl.vertexAttribPointer(colorLocation, 3, gl.FLOAT, false, 0, 0);
 
-        gl.uniform1i(uniformLocations.textureID, 0);
+    const uvLocation = gl.getAttribLocation(program, `uv`);
+    gl.enableVertexAttribArray(uvLocation);
+    gl.bindBuffer(gl.ARRAY_BUFFER, uvBuffer);
+    gl.vertexAttribPointer(uvLocation, 2, gl.FLOAT, false, 0, 0);
+
+
+    gl.useProgram(program);
+
+    uniformLocations = {
+        matrix: gl.getUniformLocation(program, "matrix"),
+        textureID: gl.getUniformLocation(program, 'textureID'),
+    };
+
+    gl.uniform1i(uniformLocations.textureID, 0);
     //
 
 
@@ -252,59 +252,29 @@ function textureCube(vertexData, colorData, uvData, modelMatrix) {
     gl.drawArrays(gl.TRIANGLES, 0, vertexData.length / 3);
 }
 
-function modelCube(vertexData, colorData, uvData, indices, modelMatrix) {
-    const positionBuffer = gl.createBuffer();
-    gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
-    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertexData), gl.STATIC_DRAW);
-
-    const indicesBuffer = gl.createBuffer();
-    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indicesBuffer);
-    gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(indices), gl.STATIC_DRAW);
-    gl.drawElements(gl.LINES, 16, gl.UNSIGNED_SHORT, indicesBuffer);
-
-    const colorBuffer = gl.createBuffer();
-    gl.bindBuffer(gl.ARRAY_BUFFER, colorBuffer);
-    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(colorData), gl.STATIC_DRAW);
-
-    const uvBuffer = gl.createBuffer();
-    gl.bindBuffer(gl.ARRAY_BUFFER, uvBuffer);
-    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(uvData), gl.STATIC_DRAW);
+function modelCube(mesh, modelMatrix) {
 
     let uniformLocations;
     //
-        const program = gl.createProgram();
+    const program = gl.createProgram();
 
-        gl.attachShader(program, vertexShader);
-        gl.attachShader(program, fragmentShader);
+    gl.attachShader(program, vertexShader);
+    gl.attachShader(program, fragmentShader);
 
-        gl.linkProgram(program);
-
-
-        const positionlocation = gl.getAttribLocation(program, "position");
-        gl.enableVertexAttribArray(positionlocation);
-        gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
-        gl.vertexAttribPointer(positionlocation, 3, gl.FLOAT, false, 0, 0);
-
-        const colorLocation = gl.getAttribLocation(program, "color");
-        gl.enableVertexAttribArray(colorLocation);
-        gl.bindBuffer(gl.ARRAY_BUFFER, colorBuffer);
-        gl.vertexAttribPointer(colorLocation, 3, gl.FLOAT, false, 0, 0);
-
-        const uvLocation = gl.getAttribLocation(program, `uv`);
-        gl.enableVertexAttribArray(uvLocation);
-        gl.bindBuffer(gl.ARRAY_BUFFER, uvBuffer);
-        gl.vertexAttribPointer(uvLocation, 2, gl.FLOAT, false, 0, 0);
+    gl.linkProgram(program);
 
 
-        gl.useProgram(program);
+    drawMesh(mesh, program);
 
-        uniformLocations = {
-            matrix: gl.getUniformLocation(program, "matrix"),
-            textureID: gl.getUniformLocation(program, 'textureID'),
-        };
 
-        gl.uniform1i(uniformLocations.textureID, 0);
-    //
+    gl.useProgram(program);
+
+    uniformLocations = {
+        matrix: gl.getUniformLocation(program, "matrix"),
+        textureID: gl.getUniformLocation(program, 'textureID'),
+    };
+
+    gl.uniform1i(uniformLocations.textureID, 0);
 
 
     // Move box
@@ -319,7 +289,48 @@ function modelCube(vertexData, colorData, uvData, indices, modelMatrix) {
     mat4.multiply(mvpMatrix, projectionMatrix, mvMatrix);
 
     gl.uniformMatrix4fv(uniformLocations.matrix, false, mvpMatrix);
-    gl.drawArrays(gl.TRIANGLES, 0, vertexData.length);
+}
+
+function drawMesh(mesh, shaderProgram) {
+    // make sure you have vertex, vertex normal, and texture coordinate
+    // attributes located in your shaders and attach them to the shader program
+    shaderProgram.vertexPositionAttribute = gl.getAttribLocation(shaderProgram, "position");
+    gl.enableVertexAttribArray(shaderProgram.vertexPositionAttribute);
+
+    shaderProgram.vertexNormalAttribute = gl.getAttribLocation(shaderProgram, "normal");
+    gl.enableVertexAttribArray(shaderProgram.vertexNormalAttribute);
+
+    shaderProgram.textureCoordAttribute = gl.getAttribLocation(shaderProgram, "uv");
+    gl.enableVertexAttribArray(shaderProgram.textureCoordAttribute);
+
+    // create and initialize the vertex, vertex normal, and texture coordinate buffers
+    // and save on to the mesh object
+    initMeshBuffers(gl, mesh);
+
+    // now to render the mesh
+    gl.bindBuffer(gl.ARRAY_BUFFER, mesh.vertexBuffer);
+    gl.vertexAttribPointer(shaderProgram.vertexPositionAttribute, mesh.vertexBuffer.itemSize, gl.FLOAT, false, 0, 0);
+
+    // it's possible that the mesh doesn't contain
+    // any texture coordinates (e.g. suzanne.obj in the development branch).
+    // in this case, the texture vertexAttribArray will need to be disabled
+    // before the call to drawElements
+    if (!mesh.textures.length) {
+        gl.disableVertexAttribArray(shaderProgram.textureCoordAttribute);
+    }
+    else {
+        // if the texture vertexAttribArray has been previously
+        // disabled, then it needs to be re-enabled
+        gl.enableVertexAttribArray(shaderProgram.textureCoordAttribute);
+        gl.bindBuffer(gl.ARRAY_BUFFER, mesh.textureBuffer);
+        gl.vertexAttribPointer(shaderProgram.textureCoordAttribute, mesh.textureBuffer.itemSize, gl.FLOAT, false, 0, 0);
+    }
+
+    gl.bindBuffer(gl.ARRAY_BUFFER, mesh.normalBuffer);
+    gl.vertexAttribPointer(shaderProgram.vertexNormalAttribute, mesh.normalBuffer.itemSize, gl.FLOAT, false, 0, 0);
+
+    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, mesh.indexBuffer);
+    gl.drawElements(gl.TRIANGLES, mesh.indexBuffer.numItems, gl.UNSIGNED_SHORT, 0);
 }
 
 function animate() {
@@ -332,7 +343,7 @@ function animate() {
     textureCube(vertexData, colorData, uvData, textureCubeModelMatrix);
 
     if (app.meshes.model) {
-        modelCube(app.meshes.model.vertices, colorData, app.meshes.model.textures, app.meshes.model.indices, modelCubeModelMatrix);
+        modelCube(app.meshes.model, modelCubeModelMatrix);
     }
 }
 

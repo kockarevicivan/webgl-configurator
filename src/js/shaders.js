@@ -6,6 +6,9 @@ export const getVertexShader = (gl) => {
 
         attribute vec3 position;
 
+        attribute vec3 normal;
+        varying vec3 vNormal;
+
         attribute vec3 color;
         varying vec3 vColor;
 
@@ -32,8 +35,8 @@ export const getFragmentShader = (gl) => {
     gl.shaderSource(fragmentShader, `
         precision mediump float;
 
+        varying vec3 vNormal;
         varying vec3 vColor;
-
         varying vec2 vUV;
 
         uniform sampler2D textureID;
