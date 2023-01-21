@@ -18,6 +18,7 @@ export const getVertexShader = (gl) => {
         uniform mat4 matrix;
 
         void main() {
+            vNormal = normal;
             vColor = color;
             vUV = uv;
             gl_Position = matrix * vec4(position, 1);

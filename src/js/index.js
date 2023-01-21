@@ -253,22 +253,15 @@ function textureCube(vertexData, colorData, uvData, modelMatrix) {
 }
 
 function modelCube(mesh, modelMatrix) {
-
-    let uniformLocations;
-    //
     const program = gl.createProgram();
 
     gl.attachShader(program, vertexShader);
     gl.attachShader(program, fragmentShader);
 
     gl.linkProgram(program);
-
-
-
-
     gl.useProgram(program);
 
-    uniformLocations = {
+    let uniformLocations = {
         matrix: gl.getUniformLocation(program, "matrix"),
         textureID: gl.getUniformLocation(program, 'textureID'),
     };
