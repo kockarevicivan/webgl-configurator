@@ -44,6 +44,7 @@ const state = {
 
     matrices: {
         statueModelMatrix: mat4.create(),
+        glassesModelMatrix: mat4.create(),
 
         lowerTileModelMatrix: mat4.create(),
         middleTileModelMatrix: mat4.create(),
@@ -53,9 +54,10 @@ const state = {
 
 downloadMeshes({
     'model': '/assets/models/statue.obj',
+    'glasses': '/assets/models/glasses.obj',
 }, function (meshes) {
     state.meshes = meshes;
-    console.log(meshes.model);
+    console.log(meshes);
 });
 
 
@@ -73,7 +75,7 @@ mat4.perspective(projectionMatrix,
 
 gl.enable(gl.DEPTH_TEST);
 
-function cube(vertexData, colorData, uvData, indices, normals, modelMatrix, vertexShader, fragmentShader) {
+function shape(vertexData, colorData, uvData, indices, normals, modelMatrix, vertexShader, fragmentShader) {
     const program = initProgram(gl, vertexData, colorData, uvData, indices, normals, vertexShader, fragmentShader);
 
     const uniformLocations = {
@@ -115,7 +117,7 @@ function cube(vertexData, colorData, uvData, indices, normals, modelMatrix, vert
     gl.drawElements(gl.TRIANGLES, indices.length, gl.UNSIGNED_SHORT, 0);
 }
 
-function model(mesh, modelMatrix, vertexShader, fragmentShader) {
+function mesh(mesh, modelMatrix, vertexShader, fragmentShader) {
     const program = gl.createProgram();
 
     gl.attachShader(program, vertexShader);
@@ -225,6 +227,11 @@ mat4.scale(state.matrices.upperTileModelMatrix, state.matrices.upperTileModelMat
 // Set the statue
 mat4.translate(state.matrices.statueModelMatrix, state.matrices.statueModelMatrix, [0, 1.5, -0.2]);
 
+// Set the glasses
+mat4.rotateX(state.matrices.glassesModelMatrix, state.matrices.glassesModelMatrix, Math.PI / 2);
+mat4.translate(state.matrices.glassesModelMatrix, state.matrices.glassesModelMatrix, [-0.13, 0.35, -4.35]);
+mat4.scale(state.matrices.glassesModelMatrix, state.matrices.glassesModelMatrix, [0.006, 0.006, 0.006]);
+
 function animate() {
     requestAnimationFrame(animate);
 
@@ -269,26 +276,30 @@ function animate() {
         state.pointLightLocation[0] -= 0.3;
     }
 
-    cube(vertexData, colorData, uvData, indices, normals, state.matrices.lowerTileModelMatrix, vertexShader, colorFragmentShader);
-    cube(vertexData, colorData, uvData, indices, normals, state.matrices.middleTileModelMatrix, vertexShader, textureFragmentShader);
-    cube(vertexData, colorData, uvData, indices, normals, state.matrices.upperTileModelMatrix, vertexShader, textureFragmentShaderPhong);
+    shape(vertexData, colorData, uvData, indices, normals, state.matrices.lowerTileModelMatrix, vertexShader, colorFragmentShader);
+    shape(vertexData, colorData, uvData, indices, normals, state.matrices.middleTileModelMatrix, vertexShader, textureFragmentShader);
+    shape(vertexData, colorData, uvData, indices, normals, state.matrices.upperTileModelMatrix, vertexShader, textureFragmentShaderPhong);
 
     if (state.meshes.model) {
-        model(state.meshes.model, state.matrices.statueModelMatrix, vertexShader, textureFragmentShaderPhong);
+        mesh(state.meshes.model, state.matrices.statueModelMatrix, vertexShader, textureFragmentShaderPhong);
     }
 
-    // cube(vertexData, colorData, uvData, indices, normals, colorCubeModelMatrix, vertexShader, colorFragmentShader);
+    if (state.meshes.glasses) {
+        mesh(state.meshes.glasses, state.matrices.glassesModelMatrix, vertexShader, textureFragmentShaderPhong);
+    }
+
+    // shape(vertexData, colorData, uvData, indices, normals, colorCubeModelMatrix, vertexShader, colorFragmentShader);
     // mat4.rotateX(colorCubeModelMatrix, colorCubeModelMatrix, Math.PI / -180);
     // mat4.rotateY(colorCubeModelMatrix, colorCubeModelMatrix, Math.PI / -90);
     // mat4.rotateZ(colorCubeModelMatrix, colorCubeModelMatrix, Math.PI / 270);
     // mat4.translate(colorCubeModelMatrix, colorCubeModelMatrix, [0, 0, -0.03]);
 
-    // cube(vertexData, colorData, uvData, indices, normals, textureCubeModelMatrix, vertexShader, textureFragmentShader);
+    // shape(vertexData, colorData, uvData, indices, normals, textureCubeModelMatrix, vertexShader, textureFragmentShader);
     // mat4.rotateX(textureCubeModelMatrix, textureCubeModelMatrix, Math.PI / 180);
     // mat4.rotateY(textureCubeModelMatrix, textureCubeModelMatrix, Math.PI / 90);
     // mat4.rotateZ(textureCubeModelMatrix, textureCubeModelMatrix, Math.PI / 270);
 
-    // cube(vertexData, colorData, uvData, indices, normals, textureCubePhongModelMatrix, vertexShader, textureFragmentShaderPhong);
+    // shape(vertexData, colorData, uvData, indices, normals, textureCubePhongModelMatrix, vertexShader, textureFragmentShaderPhong);
     // mat4.rotateX(textureCubePhongModelMatrix, textureCubePhongModelMatrix, Math.PI / 180);
     // mat4.rotateY(textureCubePhongModelMatrix, textureCubePhongModelMatrix, Math.PI / 40);
     // mat4.rotateZ(textureCubePhongModelMatrix, textureCubePhongModelMatrix, Math.PI / 20);
