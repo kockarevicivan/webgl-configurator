@@ -19,13 +19,6 @@ const projectionMatrix = mat4.create();
 const mvMatrix = mat4.create();
 const mvpMatrix = mat4.create();
 
-const colorCubeModelMatrix = mat4.create();
-const textureCubeModelMatrix = mat4.create();
-const textureCubePhongModelMatrix = mat4.create();
-const modelCubeModelMatrix = mat4.create();
-const modelCubeModelPhongMatrix = mat4.create();
-
-
 const vertexShader = getVertexShader(gl);
 const colorFragmentShader = getColorFragmentShader(gl);
 const textureFragmentShader = getTextureFragmentShader(gl);
@@ -38,28 +31,19 @@ const state = {
     nearCullDistance: 0.0001,
     farCullDistance: 10000,
 
-    cameraPosition: [0, 0, -10],
+    cameraPosition: [0, -5, -10],
     pointLightLocation: [10, 0, 0],
     specularAmount: 0.5,
     specularShininess: 50,
 
     meshes: {},
-    shapes: {
-        lowerTile: {
-            translate: [],
-            rotate: [],
-            scale: [],
-        },
-        middleTile: {
-            translate: [],
-            rotate: [],
-            scale: [],
-        },
-        upperTile: {
-            translate: [],
-            rotate: [],
-            scale: [],
-        },
+
+    matrices: {
+        statueModelMatrix: mat4.create(),
+
+        lowerTileModelMatrix: mat4.create(),
+        middleTileModelMatrix: mat4.create(),
+        upperTileModelMatrix: mat4.create(),
     }
 };
 
@@ -201,18 +185,25 @@ function model(mesh, modelMatrix, vertexShader, fragmentShader) {
     drawMesh(mesh, program);
 }
 
-
-
-
 const keyMap = {};
 document.onkeydown = e => { keyMap[e.keyCode] = true; console.log(e.keyCode)}
 document.onkeyup = e => keyMap[e.keyCode] = false;
 
-
-
-
 // Move camera (invert missing)
 mat4.translate(viewMatrix, viewMatrix, state.cameraPosition);
+
+// Move each tile in it's own place.
+mat4.translate(state.matrices.lowerTileModelMatrix, state.matrices.lowerTileModelMatrix, [0, 0, 0]);
+mat4.translate(state.matrices.middleTileModelMatrix, state.matrices.middleTileModelMatrix, [0, 1, 0]);
+mat4.translate(state.matrices.upperTileModelMatrix, state.matrices.upperTileModelMatrix, [0, 2, 0]);
+
+// Scale them
+mat4.scale(state.matrices.lowerTileModelMatrix, state.matrices.lowerTileModelMatrix, [1, 1, 1]);
+mat4.scale(state.matrices.middleTileModelMatrix, state.matrices.middleTileModelMatrix, [0.75, 0.75, 0.75]);
+mat4.scale(state.matrices.upperTileModelMatrix, state.matrices.upperTileModelMatrix, [0.5, 0.5, 0.5]);
+
+// Set the statue
+mat4.translate(state.matrices.statueModelMatrix, state.matrices.statueModelMatrix, [0, 3, -0.2]);
 
 function animate() {
     requestAnimationFrame(animate);
@@ -250,34 +241,30 @@ function animate() {
         mat4.translate(viewMatrix, viewMatrix, [0,-0.1,0]);
     }
 
-    cube(vertexData, colorData, uvData, indices, normals, colorCubeModelMatrix, vertexShader, colorFragmentShader);
-    mat4.rotateX(colorCubeModelMatrix, colorCubeModelMatrix, Math.PI / -180);
-    mat4.rotateY(colorCubeModelMatrix, colorCubeModelMatrix, Math.PI / -90);
-    mat4.rotateZ(colorCubeModelMatrix, colorCubeModelMatrix, Math.PI / 270);
-    mat4.translate(colorCubeModelMatrix, colorCubeModelMatrix, [0, 0, -0.03]);
+    cube(vertexData, colorData, uvData, indices, normals, state.matrices.lowerTileModelMatrix, vertexShader, colorFragmentShader);
+    cube(vertexData, colorData, uvData, indices, normals, state.matrices.middleTileModelMatrix, vertexShader, textureFragmentShader);
+    cube(vertexData, colorData, uvData, indices, normals, state.matrices.upperTileModelMatrix, vertexShader, colorFragmentShader);
     
-    cube(vertexData, colorData, uvData, indices, normals, textureCubeModelMatrix, vertexShader, textureFragmentShader);
-    mat4.rotateX(textureCubeModelMatrix, textureCubeModelMatrix, Math.PI / 180);
-    mat4.rotateY(textureCubeModelMatrix, textureCubeModelMatrix, Math.PI / 90);
-    mat4.rotateZ(textureCubeModelMatrix, textureCubeModelMatrix, Math.PI / 270);
-
-    cube(vertexData, colorData, uvData, indices, normals, textureCubePhongModelMatrix, vertexShader, textureFragmentShaderPhong);
-    mat4.rotateX(textureCubePhongModelMatrix, textureCubePhongModelMatrix, Math.PI / 180);
-    mat4.rotateY(textureCubePhongModelMatrix, textureCubePhongModelMatrix, Math.PI / 40);
-    mat4.rotateZ(textureCubePhongModelMatrix, textureCubePhongModelMatrix, Math.PI / 20);
-
     if (state.meshes.model) {
-        model(state.meshes.model, modelCubeModelMatrix, vertexShader, textureFragmentShader);
-        mat4.rotateX(modelCubeModelMatrix, modelCubeModelMatrix, Math.PI / -180);
-        mat4.rotateY(modelCubeModelMatrix, modelCubeModelMatrix, Math.PI / 90);
-        mat4.rotateZ(modelCubeModelMatrix, modelCubeModelMatrix, Math.PI / 270);
-        mat4.translate(modelCubeModelMatrix, modelCubeModelMatrix, [0, 0, 0.03]);
-
-        model(state.meshes.model, modelCubeModelPhongMatrix, vertexShader, textureFragmentShaderPhong);
-        mat4.rotateX(modelCubeModelPhongMatrix, modelCubeModelPhongMatrix, Math.PI / -180);
-        mat4.rotateY(modelCubeModelPhongMatrix, modelCubeModelPhongMatrix, Math.PI / 90);
-        mat4.rotateZ(modelCubeModelPhongMatrix, modelCubeModelPhongMatrix, Math.PI / 270);
+        model(state.meshes.model, state.matrices.statueModelMatrix, vertexShader, textureFragmentShaderPhong);
     }
+    
+    // cube(vertexData, colorData, uvData, indices, normals, colorCubeModelMatrix, vertexShader, colorFragmentShader);
+    // mat4.rotateX(colorCubeModelMatrix, colorCubeModelMatrix, Math.PI / -180);
+    // mat4.rotateY(colorCubeModelMatrix, colorCubeModelMatrix, Math.PI / -90);
+    // mat4.rotateZ(colorCubeModelMatrix, colorCubeModelMatrix, Math.PI / 270);
+    // mat4.translate(colorCubeModelMatrix, colorCubeModelMatrix, [0, 0, -0.03]);
+    
+    // cube(vertexData, colorData, uvData, indices, normals, textureCubeModelMatrix, vertexShader, textureFragmentShader);
+    // mat4.rotateX(textureCubeModelMatrix, textureCubeModelMatrix, Math.PI / 180);
+    // mat4.rotateY(textureCubeModelMatrix, textureCubeModelMatrix, Math.PI / 90);
+    // mat4.rotateZ(textureCubeModelMatrix, textureCubeModelMatrix, Math.PI / 270);
+
+    // cube(vertexData, colorData, uvData, indices, normals, textureCubePhongModelMatrix, vertexShader, textureFragmentShaderPhong);
+    // mat4.rotateX(textureCubePhongModelMatrix, textureCubePhongModelMatrix, Math.PI / 180);
+    // mat4.rotateY(textureCubePhongModelMatrix, textureCubePhongModelMatrix, Math.PI / 40);
+    // mat4.rotateZ(textureCubePhongModelMatrix, textureCubePhongModelMatrix, Math.PI / 20);
+
 }
 
 animate();
