@@ -214,13 +214,13 @@ mat4.translate(viewMatrix, viewMatrix, state.cameraPosition);
 
 // Move each tile in it's own place.
 mat4.translate(state.matrices.lowerTileModelMatrix, state.matrices.lowerTileModelMatrix, [0, 0, 0]);
-mat4.translate(state.matrices.middleTileModelMatrix, state.matrices.middleTileModelMatrix, [0, 1, 0]);
-mat4.translate(state.matrices.upperTileModelMatrix, state.matrices.upperTileModelMatrix, [0, 2, 0]);
+mat4.translate(state.matrices.middleTileModelMatrix, state.matrices.middleTileModelMatrix, [0, 0.5, 0]);
+mat4.translate(state.matrices.upperTileModelMatrix, state.matrices.upperTileModelMatrix, [0, 1, 0]);
 
 // Scale them
-mat4.scale(state.matrices.lowerTileModelMatrix, state.matrices.lowerTileModelMatrix, [1, 1, 1]);
-mat4.scale(state.matrices.middleTileModelMatrix, state.matrices.middleTileModelMatrix, [0.75, 0.75, 0.75]);
-mat4.scale(state.matrices.upperTileModelMatrix, state.matrices.upperTileModelMatrix, [0.5, 0.5, 0.5]);
+mat4.scale(state.matrices.lowerTileModelMatrix, state.matrices.lowerTileModelMatrix, [1, 0.25, 1]);
+mat4.scale(state.matrices.middleTileModelMatrix, state.matrices.middleTileModelMatrix, [0.75, 0.25, 0.75]);
+mat4.scale(state.matrices.upperTileModelMatrix, state.matrices.upperTileModelMatrix, [0.5, 0.25, 0.5]);
 
 // Set the statue
 mat4.translate(state.matrices.statueModelMatrix, state.matrices.statueModelMatrix, [0, 3, -0.2]);
