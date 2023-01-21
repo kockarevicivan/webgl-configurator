@@ -28,52 +28,107 @@ const vertexShader = getVertexShader(gl);
 const colorFragmentShader = getColorFragmentShader(gl);
 const textureFragmentShader = getTextureFragmentShader(gl);
 
+// https://developer.mozilla.org/en-US/docs/Web/API/WebGL_API/Tutorial/Creating_3D_objects_using_WebGL
 const vertexData = [
-    -1, -1, 1, //0
-    1, -1, 1, //1
-    -1, 1, 1, //2
-    1, 1, 1, //3
-    -1, -1, -1, //4
-    1, -1, -1, //5
-    -1, 1, -1, //6
-    1, 1, -1  //7
+    // Front face
+    -1.0, -1.0, 1.0, 1.0, -1.0, 1.0, 1.0, 1.0, 1.0, -1.0, 1.0, 1.0,
+
+    // Back face
+    -1.0, -1.0, -1.0, -1.0, 1.0, -1.0, 1.0, 1.0, -1.0, 1.0, -1.0, -1.0,
+
+    // Top face
+    -1.0, 1.0, -1.0, -1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, -1.0,
+
+    // Bottom face
+    -1.0, -1.0, -1.0, 1.0, -1.0, -1.0, 1.0, -1.0, 1.0, -1.0, -1.0, 1.0,
+
+    // Right face
+    1.0, -1.0, -1.0, 1.0, 1.0, -1.0, 1.0, 1.0, 1.0, 1.0, -1.0, 1.0,
+
+    // Left face
+    -1.0, -1.0, -1.0, -1.0, -1.0, 1.0, -1.0, 1.0, 1.0, -1.0, 1.0, -1.0,
 ];
 
+// https://developer.mozilla.org/en-US/docs/Web/API/WebGL_API/Tutorial/Lighting_in_WebGL
+const normals = [
+    // Front
+    0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0,
+
+    // Back
+    0.0, 0.0, -1.0, 0.0, 0.0, -1.0, 0.0, 0.0, -1.0, 0.0, 0.0, -1.0,
+
+    // Top
+    0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0,
+
+    // Bottom
+    0.0, -1.0, 0.0, 0.0, -1.0, 0.0, 0.0, -1.0, 0.0, 0.0, -1.0, 0.0,
+
+    // Right
+    1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0,
+
+    // Left
+    -1.0, 0.0, 0.0, -1.0, 0.0, 0.0, -1.0, 0.0, 0.0, -1.0, 0.0, 0.0,
+];
+
+// https://developer.mozilla.org/en-US/docs/Web/API/WebGL_API/Tutorial/Creating_3D_objects_using_WebGL
 const indices = [
-    //Top
-    2, 6, 7,
-    2, 3, 7,
-
-    //Bottom
-    0, 4, 5,
-    0, 1, 5,
-
-    //Left
-    0, 2, 6,
-    0, 4, 6,
-
-    //Right
-    1, 3, 7,
-    1, 5, 7,
-
-    //Front
-    0, 2, 3,
-    0, 1, 3,
-
-    //Back
-    4, 6, 7,
-    4, 5, 7
+    0,
+    1,
+    2,
+    0,
+    2,
+    3, // front
+    4,
+    5,
+    6,
+    4,
+    6,
+    7, // back
+    8,
+    9,
+    10,
+    8,
+    10,
+    11, // top
+    12,
+    13,
+    14,
+    12,
+    14,
+    15, // bottom
+    16,
+    17,
+    18,
+    16,
+    18,
+    19, // right
+    20,
+    21,
+    22,
+    20,
+    22,
+    23, // left
 ];
 
-let colorData = [
-    1.0, 1.0, 1.0, 1.0, // Front face: white
-    1.0, 0.0, 0.0, 1.0, // Back face: red
-    0.0, 1.0, 0.0, 1.0, // Top face: green
-    0.0, 0.0, 1.0, 1.0, // Bottom face: blue
-    1.0, 1.0, 0.0, 1.0, // Right face: yellow
-    1.0, 0.0, 1.0, 1.0, // Left face: purple
+const faceColors = [
+    [1.0, 1.0, 1.0, 1.0], // Front face: white
+    [1.0, 0.0, 0.0, 1.0], // Back face: red
+    [0.0, 1.0, 0.0, 1.0], // Top face: green
+    [0.0, 0.0, 1.0, 1.0], // Bottom face: blue
+    [1.0, 1.0, 0.0, 1.0], // Right face: yellow
+    [1.0, 0.0, 1.0, 1.0], // Left face: purple
 ];
 
+// https://developer.mozilla.org/en-US/docs/Web/API/WebGL_API/Tutorial/Creating_3D_objects_using_WebGL
+var colorData = [];
+
+for (var j = 0; j < faceColors.length; ++j) {
+    const c = faceColors[j];
+    // Repeat each color four times for the four vertices of the face
+    colorData = colorData.concat(c, c, c, c);
+}
+
+// https://developer.mozilla.org/en-US/docs/Web/API/WebGL_API/Tutorial/Using_textures_in_WebGL
 const uvData = [
     // Front
     0.0, 0.0, 1.0, 0.0, 1.0, 1.0, 0.0, 1.0,
@@ -115,7 +170,7 @@ mat4.perspective(projectionMatrix,
 
 gl.enable(gl.DEPTH_TEST);
 
-function colorCube(vertexData, colorData, uvData, indices, modelMatrix) {
+function colorCube(vertexData, colorData, uvData, indices, normals, modelMatrix) {
     const positionBuffer = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
     gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertexData), gl.STATIC_DRAW);
@@ -131,6 +186,10 @@ function colorCube(vertexData, colorData, uvData, indices, modelMatrix) {
     const uvBuffer = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, uvBuffer);
     gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(uvData), gl.STATIC_DRAW);
+
+    const normalBuffer = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, normalBuffer);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(normals), gl.STATIC_DRAW);
 
     const program = gl.createProgram();
 
@@ -155,6 +214,11 @@ function colorCube(vertexData, colorData, uvData, indices, modelMatrix) {
     gl.bindBuffer(gl.ARRAY_BUFFER, uvBuffer);
     gl.vertexAttribPointer(uvLocation, 2, gl.FLOAT, false, 0, 0);
 
+    const normalLocation = gl.getAttribLocation(program, "normal");
+    gl.enableVertexAttribArray(normalLocation);
+    gl.bindBuffer(gl.ARRAY_BUFFER, normalBuffer);
+    gl.vertexAttribPointer(normalLocation, 3, gl.FLOAT, false, 0, 0);
+
 
     gl.useProgram(program);
 
@@ -168,7 +232,7 @@ function colorCube(vertexData, colorData, uvData, indices, modelMatrix) {
 
     // Move box
     mat4.rotateX(modelMatrix, modelMatrix, Math.PI / -180);
-    mat4.rotateY(modelMatrix, modelMatrix, Math.PI / 90);
+    mat4.rotateY(modelMatrix, modelMatrix, Math.PI / -90);
     mat4.rotateZ(modelMatrix, modelMatrix, Math.PI / 270);
     mat4.translate(modelMatrix, modelMatrix, [0, 0, -0.03]);
 
@@ -180,11 +244,11 @@ function colorCube(vertexData, colorData, uvData, indices, modelMatrix) {
 
     gl.uniformMatrix4fv(uniformLocations.matrix, false, mvpMatrix);
 
-    
+
     gl.drawElements(gl.TRIANGLES, indices.length, gl.UNSIGNED_SHORT, 0);
 }
 
-function textureCube(vertexData, colorData, uvData, indices, modelMatrix) {
+function textureCube(vertexData, colorData, uvData, indices, normals, modelMatrix) {
     const positionBuffer = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
     gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertexData), gl.STATIC_DRAW);
@@ -200,6 +264,10 @@ function textureCube(vertexData, colorData, uvData, indices, modelMatrix) {
     const uvBuffer = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, uvBuffer);
     gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(uvData), gl.STATIC_DRAW);
+
+    const normalBuffer = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, normalBuffer);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(normals), gl.STATIC_DRAW);
 
     const program = gl.createProgram();
 
@@ -223,6 +291,11 @@ function textureCube(vertexData, colorData, uvData, indices, modelMatrix) {
     gl.enableVertexAttribArray(uvLocation);
     gl.bindBuffer(gl.ARRAY_BUFFER, uvBuffer);
     gl.vertexAttribPointer(uvLocation, 2, gl.FLOAT, false, 0, 0);
+
+    const normalLocation = gl.getAttribLocation(program, "normal");
+    gl.enableVertexAttribArray(normalLocation);
+    gl.bindBuffer(gl.ARRAY_BUFFER, normalBuffer);
+    gl.vertexAttribPointer(normalLocation, 3, gl.FLOAT, false, 0, 0);
 
 
     gl.useProgram(program);
@@ -334,8 +407,8 @@ function animate() {
     // Move camera (invert missing)
     mat4.translate(viewMatrix, viewMatrix, [0, 0, -0.02]);
 
-    colorCube(vertexData, colorData, uvData, indices, colorCubeModelMatrix);
-    textureCube(vertexData, colorData, uvData, indices, textureCubeModelMatrix);
+    colorCube(vertexData, colorData, uvData, indices, normals, colorCubeModelMatrix);
+    textureCube(vertexData, colorData, uvData, indices, normals, textureCubeModelMatrix);
 
     if (app.meshes.model) {
         modelCube(app.meshes.model, modelCubeModelMatrix);
