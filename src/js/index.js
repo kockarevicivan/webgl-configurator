@@ -38,7 +38,29 @@ const state = {
     nearCullDistance: 0.0001,
     farCullDistance: 10000,
 
-    meshes: {}
+    cameraPosition: [0, 0, -10],
+    pointLightLocation: [10, 0, 0],
+    specularAmount: 0.5,
+    specularShininess: 50,
+
+    meshes: {},
+    shapes: {
+        lowerTile: {
+            translate: [],
+            rotate: [],
+            scale: [],
+        },
+        middleTile: {
+            translate: [],
+            rotate: [],
+            scale: [],
+        },
+        upperTile: {
+            translate: [],
+            rotate: [],
+            scale: [],
+        },
+    }
 };
 
 downloadMeshes({
@@ -89,11 +111,10 @@ function cube(vertexData, colorData, uvData, indices, normals, modelMatrix, vert
     gl.uniformMatrix4fv(uniformLocations.model, false, modelMatrix);
     gl.uniformMatrix4fv(uniformLocations.view, false, viewMatrix);
     gl.uniformMatrix4fv(uniformLocations.projection, false, projectionMatrix);
-    // Update the uniform values
-    gl.uniform3fv(uniformLocations.cameraPosition, [0, 0, -10]);
-    gl.uniform3fv(uniformLocations.light, [0, 0, 0]);
-    gl.uniform1f(uniformLocations.specularAmount, 1);
-    gl.uniform1f(uniformLocations.specularShininess, 1);
+    gl.uniform3fv(uniformLocations.cameraPosition, state.cameraPosition);
+    gl.uniform3fv(uniformLocations.light, state.pointLightLocation);
+    gl.uniform1f(uniformLocations.specularAmount, state.specularAmount);
+    gl.uniform1f(uniformLocations.specularShininess, state.specularShininess);
 
     gl.drawElements(gl.TRIANGLES, indices.length, gl.UNSIGNED_SHORT, 0);
 }
@@ -130,11 +151,10 @@ function model(mesh, modelMatrix, vertexShader, fragmentShader) {
     gl.uniformMatrix4fv(uniformLocations.model, false, modelMatrix);
     gl.uniformMatrix4fv(uniformLocations.view, false, viewMatrix);
     gl.uniformMatrix4fv(uniformLocations.projection, false, projectionMatrix);
-    // Update the uniform values
-    gl.uniform3fv(uniformLocations.cameraPosition, [0, 0, -10]);
-    gl.uniform3fv(uniformLocations.light, [10, 0, 0]);
-    gl.uniform1f(uniformLocations.specularAmount, 0.5);
-    gl.uniform1f(uniformLocations.specularShininess, 50);
+    gl.uniform3fv(uniformLocations.cameraPosition, state.cameraPosition);
+    gl.uniform3fv(uniformLocations.light, state.pointLightLocation);
+    gl.uniform1f(uniformLocations.specularAmount, state.specularAmount);
+    gl.uniform1f(uniformLocations.specularShininess, state.specularShininess);
 
     function drawMesh(mesh, shaderProgram) {
         // make sure you have vertex, vertex normal, and texture coordinate
@@ -181,41 +201,71 @@ function model(mesh, modelMatrix, vertexShader, fragmentShader) {
     drawMesh(mesh, program);
 }
 
+
+
+
+const keyMap = {};
+document.onkeydown = e => keyMap[e.keyCode] = true;
+document.onkeyup = e => keyMap[e.keyCode] = false;
+
+
+
+
 // Move camera (invert missing)
-mat4.translate(viewMatrix, viewMatrix, [0, 0, -10]);
+mat4.translate(viewMatrix, viewMatrix, state.cameraPosition);
 
 function animate() {
     requestAnimationFrame(animate);
 
-    cube(vertexData, colorData, uvData, indices, normals, colorCubeModelMatrix, vertexShader, colorFragmentShader);
+    if (keyMap['38']) {
+        // Up
+        mat4.translate(viewMatrix, viewMatrix, [0,0,0.1]);
+    }
+    else if (keyMap['40']) {
+        mat4.translate(viewMatrix, viewMatrix, [0,0,-0.1]);
+    }
+    else if (keyMap['37']) {
+        mat4.translate(viewMatrix, viewMatrix, [-0.1,0,0]);
+    }
+    else if (keyMap['39']) {
+        mat4.translate(viewMatrix, viewMatrix, [0.1,0,0]);
+    }
 
+    cube(vertexData, colorData, uvData, indices, normals, colorCubeModelMatrix, vertexShader, colorFragmentShader);
     mat4.rotateX(colorCubeModelMatrix, colorCubeModelMatrix, Math.PI / -180);
     mat4.rotateY(colorCubeModelMatrix, colorCubeModelMatrix, Math.PI / -90);
     mat4.rotateZ(colorCubeModelMatrix, colorCubeModelMatrix, Math.PI / 270);
     mat4.translate(colorCubeModelMatrix, colorCubeModelMatrix, [0, 0, -0.03]);
+    
+    // cube(vertexData, colorData, uvData, indices, normals, colorCubeModelMatrix, vertexShader, colorFragmentShader);
 
-    cube(vertexData, colorData, uvData, indices, normals, textureCubeModelMatrix, vertexShader, textureFragmentShader);
-    mat4.rotateX(textureCubeModelMatrix, textureCubeModelMatrix, Math.PI / 180);
-    mat4.rotateY(textureCubeModelMatrix, textureCubeModelMatrix, Math.PI / 90);
-    mat4.rotateZ(textureCubeModelMatrix, textureCubeModelMatrix, Math.PI / 270);
+    // mat4.rotateX(colorCubeModelMatrix, colorCubeModelMatrix, Math.PI / -180);
+    // mat4.rotateY(colorCubeModelMatrix, colorCubeModelMatrix, Math.PI / -90);
+    // mat4.rotateZ(colorCubeModelMatrix, colorCubeModelMatrix, Math.PI / 270);
+    // mat4.translate(colorCubeModelMatrix, colorCubeModelMatrix, [0, 0, -0.03]);
 
-    cube(vertexData, colorData, uvData, indices, normals, textureCubePhongModelMatrix, vertexShader, textureFragmentShaderPhong);
-    mat4.rotateX(textureCubePhongModelMatrix, textureCubePhongModelMatrix, Math.PI / 180);
-    mat4.rotateY(textureCubePhongModelMatrix, textureCubePhongModelMatrix, Math.PI / 40);
-    mat4.rotateZ(textureCubePhongModelMatrix, textureCubePhongModelMatrix, Math.PI / 20);
+    // cube(vertexData, colorData, uvData, indices, normals, textureCubeModelMatrix, vertexShader, textureFragmentShader);
+    // mat4.rotateX(textureCubeModelMatrix, textureCubeModelMatrix, Math.PI / 180);
+    // mat4.rotateY(textureCubeModelMatrix, textureCubeModelMatrix, Math.PI / 90);
+    // mat4.rotateZ(textureCubeModelMatrix, textureCubeModelMatrix, Math.PI / 270);
 
-    if (state.meshes.model) {
-        model(state.meshes.model, modelCubeModelMatrix, vertexShader, textureFragmentShader);
-        mat4.rotateX(modelCubeModelMatrix, modelCubeModelMatrix, Math.PI / -180);
-        mat4.rotateY(modelCubeModelMatrix, modelCubeModelMatrix, Math.PI / 90);
-        mat4.rotateZ(modelCubeModelMatrix, modelCubeModelMatrix, Math.PI / 270);
-        mat4.translate(modelCubeModelMatrix, modelCubeModelMatrix, [0, 0, 0.03]);
+    // cube(vertexData, colorData, uvData, indices, normals, textureCubePhongModelMatrix, vertexShader, textureFragmentShaderPhong);
+    // mat4.rotateX(textureCubePhongModelMatrix, textureCubePhongModelMatrix, Math.PI / 180);
+    // mat4.rotateY(textureCubePhongModelMatrix, textureCubePhongModelMatrix, Math.PI / 40);
+    // mat4.rotateZ(textureCubePhongModelMatrix, textureCubePhongModelMatrix, Math.PI / 20);
 
-        model(state.meshes.model, modelCubeModelPhongMatrix, vertexShader, textureFragmentShaderPhong);
-        mat4.rotateX(modelCubeModelPhongMatrix, modelCubeModelPhongMatrix, Math.PI / -180);
-        mat4.rotateY(modelCubeModelPhongMatrix, modelCubeModelPhongMatrix, Math.PI / 90);
-        mat4.rotateZ(modelCubeModelPhongMatrix, modelCubeModelPhongMatrix, Math.PI / 270);
-    }
+    // if (state.meshes.model) {
+    //     model(state.meshes.model, modelCubeModelMatrix, vertexShader, textureFragmentShader);
+    //     mat4.rotateX(modelCubeModelMatrix, modelCubeModelMatrix, Math.PI / -180);
+    //     mat4.rotateY(modelCubeModelMatrix, modelCubeModelMatrix, Math.PI / 90);
+    //     mat4.rotateZ(modelCubeModelMatrix, modelCubeModelMatrix, Math.PI / 270);
+    //     mat4.translate(modelCubeModelMatrix, modelCubeModelMatrix, [0, 0, 0.03]);
+
+    //     model(state.meshes.model, modelCubeModelPhongMatrix, vertexShader, textureFragmentShaderPhong);
+    //     mat4.rotateX(modelCubeModelPhongMatrix, modelCubeModelPhongMatrix, Math.PI / -180);
+    //     mat4.rotateY(modelCubeModelPhongMatrix, modelCubeModelPhongMatrix, Math.PI / 90);
+    //     mat4.rotateZ(modelCubeModelPhongMatrix, modelCubeModelPhongMatrix, Math.PI / 270);
+    // }
 }
 
 animate();
