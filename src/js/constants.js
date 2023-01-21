@@ -81,12 +81,12 @@ export const indices = [
 ];
 
 const faceColors = [
-    [1.0, 1.0, 1.0, 1.0], // Front face: white
-    [1.0, 0.0, 0.0, 1.0], // Back face: red
     [0.0, 1.0, 0.0, 1.0], // Top face: green
-    [0.0, 0.0, 1.0, 1.0], // Bottom face: blue
-    [1.0, 1.0, 0.0, 1.0], // Right face: yellow
-    [1.0, 0.0, 1.0, 1.0], // Left face: purple
+    [0.0, 1.0, 0.0, 1.0], // Top face: green
+    [0.0, 1.0, 0.0, 1.0], // Top face: green
+    [0.0, 1.0, 0.0, 1.0], // Top face: green
+    [0.0, 1.0, 0.0, 1.0], // Top face: green
+    [0.0, 1.0, 0.0, 1.0], // Top face: green
 ];
 
 // https://developer.mozilla.org/en-US/docs/Web/API/WebGL_API/Tutorial/Creating_3D_objects_using_WebGL

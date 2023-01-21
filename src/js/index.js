@@ -32,7 +32,7 @@ const state = {
     farCullDistance: 10000,
 
     cameraPosition: [0, -3.5, -7],
-    pointLightLocation: [0, 5, -3],
+    pointLightLocation: [1, 5, -3],
     specularColor: [0, 0, 0],
     specularAmount: 0.5,
     specularShininess: 50,
@@ -259,6 +259,14 @@ function animate() {
     else if (keyMap['83']) {
         // S
         mat4.translate(viewMatrix, viewMatrix, [0, -0.3, 0]);
+    }
+    else if (keyMap['107']) {
+        // +
+        state.pointLightLocation[0] += 0.3;
+    }
+    else if (keyMap['109']) {
+        // -
+        state.pointLightLocation[0] -= 0.3;
     }
 
     cube(vertexData, colorData, uvData, indices, normals, state.matrices.lowerTileModelMatrix, vertexShader, colorFragmentShader);
