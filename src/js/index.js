@@ -264,7 +264,6 @@ function modelCube(mesh, modelMatrix) {
     gl.linkProgram(program);
 
 
-    drawMesh(mesh, program);
 
 
     gl.useProgram(program);
@@ -275,7 +274,6 @@ function modelCube(mesh, modelMatrix) {
     };
 
     gl.uniform1i(uniformLocations.textureID, 0);
-
 
     // Move box
     mat4.rotateX(modelMatrix, modelMatrix, Math.PI / -180);
@@ -289,6 +287,9 @@ function modelCube(mesh, modelMatrix) {
     mat4.multiply(mvpMatrix, projectionMatrix, mvMatrix);
 
     gl.uniformMatrix4fv(uniformLocations.matrix, false, mvpMatrix);
+
+    drawMesh(mesh, program);
+
 }
 
 function drawMesh(mesh, shaderProgram) {
