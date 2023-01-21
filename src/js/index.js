@@ -3,7 +3,6 @@ import { initProgram, loadTexture } from "./utils";
 import { getVertexShader, getColorFragmentShader, getTextureFragmentShader, getTextureFragmentShaderPhong } from "./shaders";
 import { vertexData, normals, indices, colorData, uvData } from "./constants";
 
-import Cube from "./models/Cube";
 import main from "../scss/main.scss";
 
 const canvas = document.getElementById("webgl-canvas");
@@ -28,11 +27,9 @@ const modelCubeModelPhongMatrix = mat4.create();
 
 
 const vertexShader = getVertexShader(gl);
-const fragmentShader = getColorFragmentShader(gl);
+const colorFragmentShader = getColorFragmentShader(gl);
 const textureFragmentShader = getTextureFragmentShader(gl);
 const textureFragmentShaderPhong = getTextureFragmentShaderPhong(gl);
-
-
 
 // State
 const state = {
@@ -76,38 +73,6 @@ function cube(vertexData, colorData, uvData, indices, normals, modelMatrix, vert
         model: gl.getUniformLocation(program, "model"),
         view: gl.getUniformLocation(program, "view"),
         projection: gl.getUniformLocation(program, "projection"),
-        textureID: gl.getUniformLocation(program, 'textureID'),
-    };
-
-    gl.uniform1i(uniformLocations.textureID, 0);
-
-    // Move box
-    mat4.rotateX(modelMatrix, modelMatrix, Math.PI / -180);
-    mat4.rotateY(modelMatrix, modelMatrix, Math.PI / -90);
-    mat4.rotateZ(modelMatrix, modelMatrix, Math.PI / 270);
-    mat4.translate(modelMatrix, modelMatrix, [0, 0, -0.03]);
-
-    // M+V
-    mat4.multiply(mvMatrix, viewMatrix, modelMatrix);
-    // M+V+P
-    mat4.multiply(mvpMatrix, projectionMatrix, mvMatrix);
-
-    gl.uniformMatrix4fv(uniformLocations.matrix, false, mvpMatrix);
-    gl.uniformMatrix4fv(uniformLocations.model, false, modelMatrix);
-    gl.uniformMatrix4fv(uniformLocations.view, false, viewMatrix);
-    gl.uniformMatrix4fv(uniformLocations.projection, false, projectionMatrix);
-
-    gl.drawElements(gl.TRIANGLES, indices.length, gl.UNSIGNED_SHORT, 0);
-}
-
-function textureCubePhong(vertexData, colorData, uvData, indices, normals, modelMatrix) {
-    const program = initProgram(gl, vertexData, colorData, uvData, indices, normals, vertexShader, fragmentShader);
-
-    const uniformLocations = {
-        matrix: gl.getUniformLocation(program, "matrix"),
-        model: gl.getUniformLocation(program, "model"),
-        view: gl.getUniformLocation(program, "view"),
-        projection: gl.getUniformLocation(program, "projection"),
         textureID: gl.getUniformLocation(program, "textureID"),
         cameraPosition: gl.getUniformLocation(program, "cameraPosition"),
         light: gl.getUniformLocation(program, "light"),
@@ -117,21 +82,10 @@ function textureCubePhong(vertexData, colorData, uvData, indices, normals, model
 
     gl.uniform1i(uniformLocations.textureID, 0);
 
-
-    // Move box
-    mat4.rotateX(modelMatrix, modelMatrix, Math.PI / 180);
-    mat4.rotateY(modelMatrix, modelMatrix, Math.PI / 90);
-    mat4.rotateZ(modelMatrix, modelMatrix, Math.PI / 270);
-
-
     // M+V
     mat4.multiply(mvMatrix, viewMatrix, modelMatrix);
     // M+V+P
     mat4.multiply(mvpMatrix, projectionMatrix, mvMatrix);
-
-
-
-
 
     gl.uniformMatrix4fv(uniformLocations.matrix, false, mvpMatrix);
     gl.uniformMatrix4fv(uniformLocations.model, false, modelMatrix);
@@ -146,11 +100,11 @@ function textureCubePhong(vertexData, colorData, uvData, indices, normals, model
     gl.drawElements(gl.TRIANGLES, indices.length, gl.UNSIGNED_SHORT, 0);
 }
 
-function modelCube(mesh, modelMatrix) {
+function model(mesh, modelMatrix, vertexShader, fragmentShader) {
     const program = gl.createProgram();
 
     gl.attachShader(program, vertexShader);
-    gl.attachShader(program, textureFragmentShader);
+    gl.attachShader(program, fragmentShader);
 
     gl.linkProgram(program);
     gl.useProgram(program);
@@ -226,7 +180,7 @@ function modelCube(mesh, modelMatrix) {
     drawMesh(mesh, program);
 }
 
-function modelCubePhong(mesh, modelMatrix) {
+function modelPhong(mesh, modelMatrix) {
     const program = gl.createProgram();
 
     gl.attachShader(program, vertexShader);
@@ -318,20 +272,29 @@ function modelCubePhong(mesh, modelMatrix) {
 // Move camera (invert missing)
 mat4.translate(viewMatrix, viewMatrix, [0, 0, -10]);
 
-
-
 function animate() {
     requestAnimationFrame(animate);
 
-
-
-    cube(vertexData, colorData, uvData, indices, normals, colorCubeModelMatrix, vertexShader, fragmentShader);
+    cube(vertexData, colorData, uvData, indices, normals, colorCubeModelMatrix, vertexShader, colorFragmentShader);
+    
+    mat4.rotateX(colorCubeModelMatrix, colorCubeModelMatrix, Math.PI / -180);
+    mat4.rotateY(colorCubeModelMatrix, colorCubeModelMatrix, Math.PI / -90);
+    mat4.rotateZ(colorCubeModelMatrix, colorCubeModelMatrix, Math.PI / 270);
+    mat4.translate(colorCubeModelMatrix, colorCubeModelMatrix, [0, 0, -0.03]);
+    
     cube(vertexData, colorData, uvData, indices, normals, textureCubeModelMatrix, vertexShader, textureFragmentShader);
-    textureCubePhong(vertexData, colorData, uvData, indices, normals, textureCubeModelMatrix);
+    mat4.rotateX(textureCubeModelMatrix, textureCubeModelMatrix, Math.PI / 180);
+    mat4.rotateY(textureCubeModelMatrix, textureCubeModelMatrix, Math.PI / 90);
+    mat4.rotateZ(textureCubeModelMatrix, textureCubeModelMatrix, Math.PI / 270);
+
+    cube(vertexData, colorData, uvData, indices, normals, textureCubePhongModelMatrix, vertexShader, textureFragmentShaderPhong);
+    mat4.rotateX(textureCubePhongModelMatrix, textureCubePhongModelMatrix, Math.PI / 180);
+    mat4.rotateY(textureCubePhongModelMatrix, textureCubePhongModelMatrix, Math.PI / 40);
+    mat4.rotateZ(textureCubePhongModelMatrix, textureCubePhongModelMatrix, Math.PI / 20);
 
     if (state.meshes.model) {
-        modelCube(state.meshes.model, modelCubeModelMatrix);
-        modelCubePhong(state.meshes.model, modelCubeModelPhongMatrix);
+        model(state.meshes.model, modelCubeModelMatrix, vertexShader, textureFragmentShader);
+        modelPhong(state.meshes.model, modelCubeModelPhongMatrix, vertexShader, textureFragmentShaderPhong);
     }
 }
 
