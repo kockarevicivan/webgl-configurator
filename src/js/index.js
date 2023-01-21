@@ -1,7 +1,9 @@
 import { downloadMeshes, initMeshBuffers } from "webgl-obj-loader";
 import { getRandomColor, loadTexture, repeat } from "./utils";
+import { getVertexShader, getFragmentShader } from "./shaders";
 
 import main from "../scss/main.scss";
+import ColorCube from "./models/ColorCube";
 
 const canvas = document.getElementById("webgl-canvas");
 
@@ -20,6 +22,9 @@ const mvpMatrix = mat4.create();
 const colorCubeModelMatrix = mat4.create();
 const textureCubeModelMatrix = mat4.create();
 const modelCubeModelMatrix = mat4.create();
+
+const vertexShader = getVertexShader(gl);
+const fragmentShader = getFragmentShader(gl);
 
 const vertexData = [
 
@@ -112,6 +117,9 @@ mat4.perspective(projectionMatrix,
     10000 // Far cull distance
 );
 
+gl.enable(gl.DEPTH_TEST);
+
+
 
 function colorCube(vertexData, colorData, uvData, modelMatrix) {
     const positionBuffer = gl.createBuffer();
@@ -127,46 +135,7 @@ function colorCube(vertexData, colorData, uvData, modelMatrix) {
     gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(uvData), gl.STATIC_DRAW);
 
     let uniformLocations;
-    (function shaderProgram() {
-        const vertexShader = gl.createShader(gl.VERTEX_SHADER);
-        gl.shaderSource(vertexShader, `
-        precision mediump float;
-
-        attribute vec3 position;
-
-        attribute vec3 color;
-        varying vec3 vColor;
-
-        attribute vec2 uv;
-        varying vec2 vUV;
-
-        uniform mat4 matrix;
-
-        void main() {
-            vColor = color;
-            vUV = uv;
-            gl_Position = matrix * vec4(position, 1);
-        }
-    `);
-        gl.compileShader(vertexShader);
-
-        const fragmentShader = gl.createShader(gl.FRAGMENT_SHADER);
-        gl.shaderSource(fragmentShader, `
-        precision mediump float;
-
-        varying vec3 vColor;
-
-        varying vec2 vUV;
-
-        uniform sampler2D textureID;
-
-        void main() {
-            gl_FragColor = vec4(vColor, 1);
-        }
-    `);
-        gl.compileShader(fragmentShader);
-
-
+    //
         const program = gl.createProgram();
 
         gl.attachShader(program, vertexShader);
@@ -192,7 +161,6 @@ function colorCube(vertexData, colorData, uvData, modelMatrix) {
 
 
         gl.useProgram(program);
-        gl.enable(gl.DEPTH_TEST);
 
         uniformLocations = {
             matrix: gl.getUniformLocation(program, "matrix"),
@@ -200,7 +168,7 @@ function colorCube(vertexData, colorData, uvData, modelMatrix) {
         };
 
         gl.uniform1i(uniformLocations.textureID, 0);
-    })();
+    //
 
 
     // Move box
@@ -233,47 +201,7 @@ function textureCube(vertexData, colorData, uvData, modelMatrix) {
     gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(uvData), gl.STATIC_DRAW);
 
     let uniformLocations;
-    (function shaderProgram() {
-        const vertexShader = gl.createShader(gl.VERTEX_SHADER);
-        gl.shaderSource(vertexShader, `
-        precision mediump float;
-
-        attribute vec3 position;
-
-        attribute vec3 color;
-        varying vec3 vColor;
-
-        attribute vec2 uv;
-        varying vec2 vUV;
-
-        uniform mat4 matrix;
-
-        void main() {
-            vColor = color;
-            vUV = uv;
-            gl_Position = matrix * vec4(position, 1);
-        }
-    `);
-        gl.compileShader(vertexShader);
-
-        const fragmentShader = gl.createShader(gl.FRAGMENT_SHADER);
-        gl.shaderSource(fragmentShader, `
-        precision mediump float;
-
-        varying vec3 vColor;
-
-        varying vec2 vUV;
-
-        uniform sampler2D textureID;
-
-        void main() {
-            gl_FragColor = vec4(vColor, 1);
-            gl_FragColor = texture2D(textureID, vUV);
-        }
-    `);
-        gl.compileShader(fragmentShader);
-
-
+    //
         const program = gl.createProgram();
 
         gl.attachShader(program, vertexShader);
@@ -299,7 +227,6 @@ function textureCube(vertexData, colorData, uvData, modelMatrix) {
 
 
         gl.useProgram(program);
-        gl.enable(gl.DEPTH_TEST);
 
         uniformLocations = {
             matrix: gl.getUniformLocation(program, "matrix"),
@@ -307,7 +234,7 @@ function textureCube(vertexData, colorData, uvData, modelMatrix) {
         };
 
         gl.uniform1i(uniformLocations.textureID, 0);
-    })();
+    //
 
 
     // Move box
@@ -325,12 +252,15 @@ function textureCube(vertexData, colorData, uvData, modelMatrix) {
     gl.drawArrays(gl.TRIANGLES, 0, vertexData.length / 3);
 }
 
-function modelCube(vertexData, colorData, uvData, modelMatrix) {
+function modelCube(vertexData, colorData, uvData, indices, modelMatrix) {
     const positionBuffer = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
     gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertexData), gl.STATIC_DRAW);
 
-    // gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indicesBuffer);
+    const indicesBuffer = gl.createBuffer();
+    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indicesBuffer);
+    gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(indices), gl.STATIC_DRAW);
+    gl.drawElements(gl.LINES, 16, gl.UNSIGNED_SHORT, indicesBuffer);
 
     const colorBuffer = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, colorBuffer);
@@ -341,47 +271,7 @@ function modelCube(vertexData, colorData, uvData, modelMatrix) {
     gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(uvData), gl.STATIC_DRAW);
 
     let uniformLocations;
-    (function shaderProgram() {
-        const vertexShader = gl.createShader(gl.VERTEX_SHADER);
-        gl.shaderSource(vertexShader, `
-        precision mediump float;
-
-        attribute vec3 position;
-
-        attribute vec3 color;
-        varying vec3 vColor;
-
-        attribute vec2 uv;
-        varying vec2 vUV;
-
-        uniform mat4 matrix;
-
-        void main() {
-            vColor = color;
-            vUV = uv;
-            gl_Position = matrix * vec4(position, 1);
-        }
-    `);
-        gl.compileShader(vertexShader);
-
-        const fragmentShader = gl.createShader(gl.FRAGMENT_SHADER);
-        gl.shaderSource(fragmentShader, `
-        precision mediump float;
-
-        varying vec3 vColor;
-
-        varying vec2 vUV;
-
-        uniform sampler2D textureID;
-
-        void main() {
-            gl_FragColor = vec4(vColor, 1);
-            gl_FragColor = texture2D(textureID, vUV);
-        }
-    `);
-        gl.compileShader(fragmentShader);
-
-
+    //
         const program = gl.createProgram();
 
         gl.attachShader(program, vertexShader);
@@ -407,7 +297,6 @@ function modelCube(vertexData, colorData, uvData, modelMatrix) {
 
 
         gl.useProgram(program);
-        gl.enable(gl.DEPTH_TEST);
 
         uniformLocations = {
             matrix: gl.getUniformLocation(program, "matrix"),
@@ -415,7 +304,7 @@ function modelCube(vertexData, colorData, uvData, modelMatrix) {
         };
 
         gl.uniform1i(uniformLocations.textureID, 0);
-    })();
+    //
 
 
     // Move box
@@ -443,7 +332,7 @@ function animate() {
     textureCube(vertexData, colorData, uvData, textureCubeModelMatrix);
 
     if (app.meshes.model) {
-        modelCube(app.meshes.model.vertices, colorData, uvData, modelCubeModelMatrix);
+        modelCube(app.meshes.model.vertices, colorData, app.meshes.model.textures, app.meshes.model.indices, modelCubeModelMatrix);
     }
 }
 
