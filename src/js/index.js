@@ -32,9 +32,13 @@ const state = {
     farCullDistance: 10000,
 
     cameraPosition: [0, -5, -10],
-    pointLightLocation: [10, 0, 0],
+    pointLightLocation: [0, 5, -3],
+    specularColor: [0, 0, 0],
     specularAmount: 0.5,
     specularShininess: 50,
+    ambientLightIntensity: [0.4, 0.4, 0.4],
+    sunlightIntensity: [1, 1, 1],
+    sunlightDirection: [0.0, 0.0, 0.0],
 
     meshes: {},
 
@@ -79,9 +83,13 @@ function cube(vertexData, colorData, uvData, indices, normals, modelMatrix, vert
         projection: gl.getUniformLocation(program, "projection"),
         textureID: gl.getUniformLocation(program, "textureID"),
         cameraPosition: gl.getUniformLocation(program, "cameraPosition"),
-        light: gl.getUniformLocation(program, "light"),
         specularAmount: gl.getUniformLocation(program, "specularAmount"),
         specularShininess: gl.getUniformLocation(program, "specularShininess"),
+        ambientLightIntensity: gl.getUniformLocation(program, "ambientLightIntensity"),
+        sunlightIntensity: gl.getUniformLocation(program, "sunlightIntensity"),
+        sunlightDirection: gl.getUniformLocation(program, "sunlightDirection"),
+        pointLightLocation: gl.getUniformLocation(program, "pointLightLocation"),
+        specularColor: gl.getUniformLocation(program, "specularColor"),
     };
 
     gl.uniform1i(uniformLocations.textureID, 0);
@@ -96,9 +104,13 @@ function cube(vertexData, colorData, uvData, indices, normals, modelMatrix, vert
     gl.uniformMatrix4fv(uniformLocations.view, false, viewMatrix);
     gl.uniformMatrix4fv(uniformLocations.projection, false, projectionMatrix);
     gl.uniform3fv(uniformLocations.cameraPosition, state.cameraPosition);
-    gl.uniform3fv(uniformLocations.light, state.pointLightLocation);
     gl.uniform1f(uniformLocations.specularAmount, state.specularAmount);
     gl.uniform1f(uniformLocations.specularShininess, state.specularShininess);
+    gl.uniform3fv(uniformLocations.ambientLightIntensity, state.ambientLightIntensity);
+    gl.uniform3fv(uniformLocations.sunlightIntensity, state.sunlightIntensity);
+    gl.uniform3fv(uniformLocations.sunlightDirection, state.sunlightDirection);
+    gl.uniform3fv(uniformLocations.pointLightLocation, state.pointLightLocation);
+    gl.uniform3fv(uniformLocations.specularColor, state.specularColor);
 
     gl.drawElements(gl.TRIANGLES, indices.length, gl.UNSIGNED_SHORT, 0);
 }
@@ -119,9 +131,13 @@ function model(mesh, modelMatrix, vertexShader, fragmentShader) {
         projection: gl.getUniformLocation(program, "projection"),
         textureID: gl.getUniformLocation(program, "textureID"),
         cameraPosition: gl.getUniformLocation(program, "cameraPosition"),
-        light: gl.getUniformLocation(program, "light"),
         specularAmount: gl.getUniformLocation(program, "specularAmount"),
         specularShininess: gl.getUniformLocation(program, "specularShininess"),
+        ambientLightIntensity: gl.getUniformLocation(program, "ambientLightIntensity"),
+        sunlightIntensity: gl.getUniformLocation(program, "sunlightIntensity"),
+        sunlightDirection: gl.getUniformLocation(program, "sunlightDirection"),
+        pointLightLocation: gl.getUniformLocation(program, "pointLightLocation"),
+        specularColor: gl.getUniformLocation(program, "specularColor"),
     };
 
     gl.uniform1i(uniformLocations.textureID, 0);
@@ -136,9 +152,13 @@ function model(mesh, modelMatrix, vertexShader, fragmentShader) {
     gl.uniformMatrix4fv(uniformLocations.view, false, viewMatrix);
     gl.uniformMatrix4fv(uniformLocations.projection, false, projectionMatrix);
     gl.uniform3fv(uniformLocations.cameraPosition, state.cameraPosition);
-    gl.uniform3fv(uniformLocations.light, state.pointLightLocation);
     gl.uniform1f(uniformLocations.specularAmount, state.specularAmount);
     gl.uniform1f(uniformLocations.specularShininess, state.specularShininess);
+    gl.uniform3fv(uniformLocations.ambientLightIntensity, state.ambientLightIntensity);
+    gl.uniform3fv(uniformLocations.sunlightIntensity, state.sunlightIntensity);
+    gl.uniform3fv(uniformLocations.sunlightDirection, state.sunlightDirection);
+    gl.uniform3fv(uniformLocations.pointLightLocation, state.pointLightLocation);
+    gl.uniform3fv(uniformLocations.specularColor, state.specularColor);
 
     function drawMesh(mesh, shaderProgram) {
         // make sure you have vertex, vertex normal, and texture coordinate
@@ -186,7 +206,7 @@ function model(mesh, modelMatrix, vertexShader, fragmentShader) {
 }
 
 const keyMap = {};
-document.onkeydown = e => { keyMap[e.keyCode] = true; console.log(e.keyCode)}
+document.onkeydown = e => { keyMap[e.keyCode] = true; console.log(e.keyCode) }
 document.onkeyup = e => keyMap[e.keyCode] = false;
 
 // Move camera (invert missing)
@@ -210,51 +230,51 @@ function animate() {
 
     if (keyMap['38']) {
         // Up
-        mat4.translate(viewMatrix, viewMatrix, [0,0,0.1]);
+        mat4.translate(viewMatrix, viewMatrix, [0, 0, 0.3]);
     }
     else if (keyMap['40']) {
         // Down
-        mat4.translate(viewMatrix, viewMatrix, [0,0,-0.1]);
+        mat4.translate(viewMatrix, viewMatrix, [0, 0, -0.3]);
     }
     else if (keyMap['37']) {
         // Left
-        mat4.translate(viewMatrix, viewMatrix, [-0.1,0,0]);
+        mat4.translate(viewMatrix, viewMatrix, [-0.3, 0, 0]);
     }
     else if (keyMap['39']) {
         // Right
-        mat4.translate(viewMatrix, viewMatrix, [0.1,0,0]);
+        mat4.translate(viewMatrix, viewMatrix, [0.3, 0, 0]);
     }
     else if (keyMap['81']) {
         // Q
-        mat4.rotateY(viewMatrix, viewMatrix, Math.PI / 180);
+        mat4.rotateY(viewMatrix, viewMatrix, Math.PI / 50);
     }
     else if (keyMap['69']) {
         // E
-        mat4.rotateY(viewMatrix, viewMatrix, Math.PI / -180);
+        mat4.rotateY(viewMatrix, viewMatrix, Math.PI / -50);
     }
     else if (keyMap['87']) {
         // W
-        mat4.translate(viewMatrix, viewMatrix, [0,0.1,0]);
+        mat4.translate(viewMatrix, viewMatrix, [0, 0.3, 0]);
     }
     else if (keyMap['83']) {
         // S
-        mat4.translate(viewMatrix, viewMatrix, [0,-0.1,0]);
+        mat4.translate(viewMatrix, viewMatrix, [0, -0.3, 0]);
     }
 
     cube(vertexData, colorData, uvData, indices, normals, state.matrices.lowerTileModelMatrix, vertexShader, colorFragmentShader);
     cube(vertexData, colorData, uvData, indices, normals, state.matrices.middleTileModelMatrix, vertexShader, textureFragmentShader);
-    cube(vertexData, colorData, uvData, indices, normals, state.matrices.upperTileModelMatrix, vertexShader, colorFragmentShader);
-    
+    cube(vertexData, colorData, uvData, indices, normals, state.matrices.upperTileModelMatrix, vertexShader, textureFragmentShaderPhong);
+
     if (state.meshes.model) {
         model(state.meshes.model, state.matrices.statueModelMatrix, vertexShader, textureFragmentShaderPhong);
     }
-    
+
     // cube(vertexData, colorData, uvData, indices, normals, colorCubeModelMatrix, vertexShader, colorFragmentShader);
     // mat4.rotateX(colorCubeModelMatrix, colorCubeModelMatrix, Math.PI / -180);
     // mat4.rotateY(colorCubeModelMatrix, colorCubeModelMatrix, Math.PI / -90);
     // mat4.rotateZ(colorCubeModelMatrix, colorCubeModelMatrix, Math.PI / 270);
     // mat4.translate(colorCubeModelMatrix, colorCubeModelMatrix, [0, 0, -0.03]);
-    
+
     // cube(vertexData, colorData, uvData, indices, normals, textureCubeModelMatrix, vertexShader, textureFragmentShader);
     // mat4.rotateX(textureCubeModelMatrix, textureCubeModelMatrix, Math.PI / 180);
     // mat4.rotateY(textureCubeModelMatrix, textureCubeModelMatrix, Math.PI / 90);

@@ -47,16 +47,16 @@ export const getColorFragmentShader = (gl) => {
         varying vec2 vUV;
 
         uniform sampler2D textureID;
+        uniform vec3 ambientLightIntensity;
+        uniform vec3 sunlightIntensity;
+        uniform vec3 sunlightDirection;
 
         void main() {
-            vec3 ambientLightIntensity = vec3(-0.8, -0.8, -0.8);
-            vec3 sunlightIntensity = vec3(0.9, 0.9, 0.9);
-            vec3 sunlightDirection = normalize(vec3(0.0, 4.0, 0.0));
             vec3 surfaceNormal = normalize(vNormal);
 
             vec4 texel = texture2D(textureID, vUV);
 
-            vec3 lightIntensity = ambientLightIntensity + sunlightIntensity * max(dot(surfaceNormal, sunlightDirection), 0.0);
+            vec3 lightIntensity = ambientLightIntensity + sunlightIntensity * max(dot(surfaceNormal, normalize(sunlightDirection)), 0.0);
 
             gl_FragColor = vec4(vColor + lightIntensity, texel.a);
         }
@@ -78,16 +78,16 @@ export const getTextureFragmentShader = (gl) => {
         varying vec2 vUV;
 
         uniform sampler2D textureID;
+        uniform vec3 ambientLightIntensity;
+        uniform vec3 sunlightIntensity;
+        uniform vec3 sunlightDirection;
 
         void main() {
-            vec3 ambientLightIntensity = vec3(-0.8, -0.8, -0.8);
-            vec3 sunlightIntensity = vec3(0.9, 0.9, 0.9);
-            vec3 sunlightDirection = normalize(vec3(0.0, 4.0, 0.0));
             vec3 surfaceNormal = normalize(vNormal);
 
             vec4 texel = texture2D(textureID, vUV);
 
-            vec3 lightIntensity = ambientLightIntensity + sunlightIntensity * max(dot(surfaceNormal, sunlightDirection), 0.0);
+            vec3 lightIntensity = ambientLightIntensity + sunlightIntensity * max(dot(surfaceNormal, normalize(sunlightDirection)), 0.0);
 
             gl_FragColor = vec4(texel.rgb + lightIntensity, texel.a);
         }
@@ -110,25 +110,24 @@ export const getTextureFragmentShaderPhong = (gl) => {
         varying vec2 vUV;
 
         uniform sampler2D textureID;
-
+        uniform vec3 ambientLightIntensity;
+        uniform vec3 sunlightIntensity;
+        uniform vec3 sunlightDirection;
+        uniform vec3 pointLightLocation;
         uniform vec3 cameraPosition;
-        uniform vec3 light;
         uniform float specularAmount;
         uniform float specularShininess;
+        uniform vec3 specularColor;
+
+        
 
         void main() {
             vec4 texel = texture2D(textureID, vUV);
 
-            // Ambient
-            vec3 ambientLightIntensity = vec3(0.4, 0.4, 0.4);
-            
-            // Directional
-            vec3 sunlightIntensity = vec3(1, 1,1 );
-            vec3 sunlightDirection = normalize(vec3(0.0, 0.0, 0.0));
             vec3 surfaceNormal = normalize(vNormal);
 
             // Point
-            vec3 pointLightDirection = normalize(vec3(0.0, 1.0, -50.0) - vec3(vPosition));
+            vec3 pointLightDirection = normalize(pointLightLocation - vec3(vPosition));
             float pointLightDot = max(dot(pointLightDirection, surfaceNormal), 0.0);
 
             vec3 diffuse = sunlightIntensity * texel.rgb * pointLightDot;
@@ -137,7 +136,7 @@ export const getTextureFragmentShaderPhong = (gl) => {
 
             // Phong
             vec3 directionToCamera = normalize(cameraPosition - vPosition);
-            vec3 halfwayVector = normalize(directionToCamera + normalize(light));
+            vec3 halfwayVector = normalize(directionToCamera + normalize(pointLightLocation));
             
             float specularBrightness = (
                 specularAmount * pow(
@@ -147,8 +146,6 @@ export const getTextureFragmentShaderPhong = (gl) => {
 
             float lightDotProduct = dot(normalize(vNormal), pointLightDirection);
             float surfaceBrightness = max(0.0, lightDotProduct);
-
-            vec3 specularColor = vec3(0,0,0);
             
             gl_FragColor = vec4((diffuse + ambient) * surfaceBrightness + specularColor, texel.a);
         }
