@@ -117,18 +117,27 @@ export const getTextureFragmentShaderPhong = (gl) => {
         uniform float specularShininess;
 
         void main() {
-            vec3 ambientLightIntensity = vec3(-0.8, -0.8, -0.8);
-            vec3 sunlightIntensity = vec3(0.9, 0.9, 0.9);
-            vec3 sunlightDirection = normalize(vec3(0.0, 4.0, 0.0));
-            vec3 surfaceNormal = normalize(vNormal);
-
             vec4 texel = texture2D(textureID, vUV);
 
-            vec3 lightIntensity = ambientLightIntensity + sunlightIntensity * max(dot(surfaceNormal, sunlightDirection), 0.0);
+            // Ambient
+            vec3 ambientLightIntensity = vec3(0.4, 0.4, 0.4);
+            
+            // Directional
+            vec3 sunlightIntensity = vec3(1, 1,1 );
+            vec3 sunlightDirection = normalize(vec3(0.0, 0.0, 0.0));
+            vec3 surfaceNormal = normalize(vNormal);
+
+            // Point
+            vec3 pointLightDirection = normalize(vec3(0.0, 1.0, -50.0) - vec3(vPosition));
+            float pointLightDot = max(dot(pointLightDirection, surfaceNormal), 0.0);
+
+            vec3 diffuse = sunlightIntensity * texel.rgb * pointLightDot;
+            vec3 ambient = ambientLightIntensity * texel.rgb;
+
 
             // Phong
             vec3 directionToCamera = normalize(cameraPosition - vPosition);
-            vec3 halfwayVector = normalize(directionToCamera + light);
+            vec3 halfwayVector = normalize(directionToCamera + normalize(light));
             
             float specularBrightness = (
                 specularAmount * pow(
@@ -136,13 +145,12 @@ export const getTextureFragmentShaderPhong = (gl) => {
                 )
             );
 
-            float lightDotProduct = dot(normalize(vNormal), light);
+            float lightDotProduct = dot(normalize(vNormal), pointLightDirection);
             float surfaceBrightness = max(0.0, lightDotProduct);
 
-            vec4 specularColor = vec4(1.0, 1.0, 1.0, 1.0);
-
-
-            gl_FragColor = vec4((texel.rgb + lightIntensity) * surfaceBrightness, texel.a);
+            vec3 specularColor = vec3(0,0,0);
+            
+            gl_FragColor = vec4((diffuse + ambient) * surfaceBrightness + specularColor, texel.a);
         }
     `);
 

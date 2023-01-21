@@ -552,9 +552,9 @@ function modelCubePhong(mesh, modelMatrix) {
     gl.uniformMatrix4fv(uniformLocations.projection, false, projectionMatrix);
     // Update the uniform values
     gl.uniform3fv(uniformLocations.cameraPosition, [0, 0, -10]);
-    gl.uniform3fv(uniformLocations.light, [0, 0, -10]);
-    gl.uniform1f(uniformLocations.specularAmount, 10);
-    gl.uniform1f(uniformLocations.specularShininess, 5);
+    gl.uniform3fv(uniformLocations.light, [10, 0, 0]);
+    gl.uniform1f(uniformLocations.specularAmount, 0.5);
+    gl.uniform1f(uniformLocations.specularShininess, 50);
 
     function drawMesh(mesh, shaderProgram) {
         // make sure you have vertex, vertex normal, and texture coordinate
@@ -616,7 +616,7 @@ function animate() {
     // textureCubePhong(vertexData, colorData, uvData, indices, normals, textureCubeModelMatrix);
 
     if (app.meshes.model) {
-        modelCube(app.meshes.model, modelCubeModelMatrix);
+        // modelCube(app.meshes.model, modelCubeModelMatrix);
         modelCubePhong(app.meshes.model, modelCubeModelPhongMatrix);
     }
 }
