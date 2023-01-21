@@ -1,14 +1,14 @@
 import { downloadMeshes, initMeshBuffers } from "webgl-obj-loader";
 import { initProgram, loadTexture } from "./utils";
-import { getVertexShader, getColorFragmentShader, getTextureFragmentShader, getTextureFragmentShaderPhong } from "./shaders";
+import { getVertexShader, getColorFragmentShader, getVariableColorFragmentShader, getTextureFragmentShader, getTextureFragmentShaderPhong } from "./shaders";
 import { vertexData, normals, indices, colorData, uvData } from "./constants";
 
 import main from "../scss/main.scss";
 
 const canvas = document.getElementById("webgl-canvas");
 
-canvas.width = window.innerWidth;
-canvas.height = canvas.width;
+canvas.width = window.innerWidth * 0.7;
+canvas.height = window.innerHeight - 5;
 
 const gl = canvas.getContext("webgl");
 
@@ -21,6 +21,7 @@ const mvpMatrix = mat4.create();
 
 const vertexShader = getVertexShader(gl);
 const colorFragmentShader = getColorFragmentShader(gl);
+const variableColorFragmentShader = getVariableColorFragmentShader(gl);
 const textureFragmentShader = getTextureFragmentShader(gl);
 const textureFragmentShaderPhong = getTextureFragmentShaderPhong(gl);
 
@@ -31,14 +32,15 @@ const state = {
     nearCullDistance: 0.0001,
     farCullDistance: 10000,
 
-    cameraPosition: [0, -3.5, -7],
+    cameraPosition: [0, -3.5, -4.5],
     pointLightLocation: [1, 5, -3],
     specularColor: [0, 0, 0],
     specularAmount: 0.5,
     specularShininess: 50,
     ambientLightIntensity: [0.6, 0.6, 0.6],
     sunlightIntensity: [1, 1, 1],
-    sunlightDirection: [0.0, 0.0, 0.0],
+    sunlightDirection: [0.0, 1, 0.0],
+    customColor: [1, 0, 0],
 
     meshes: {},
 
@@ -92,6 +94,7 @@ function shape(vertexData, colorData, uvData, indices, normals, modelMatrix, ver
         sunlightDirection: gl.getUniformLocation(program, "sunlightDirection"),
         pointLightLocation: gl.getUniformLocation(program, "pointLightLocation"),
         specularColor: gl.getUniformLocation(program, "specularColor"),
+        customColor: gl.getUniformLocation(program, "customColor"),
     };
 
     gl.uniform1i(uniformLocations.textureID, 0);
@@ -113,6 +116,7 @@ function shape(vertexData, colorData, uvData, indices, normals, modelMatrix, ver
     gl.uniform3fv(uniformLocations.sunlightDirection, state.sunlightDirection);
     gl.uniform3fv(uniformLocations.pointLightLocation, state.pointLightLocation);
     gl.uniform3fv(uniformLocations.specularColor, state.specularColor);
+    gl.uniform3fv(uniformLocations.customColor, state.customColor);
 
     gl.drawElements(gl.TRIANGLES, indices.length, gl.UNSIGNED_SHORT, 0);
 }
@@ -140,6 +144,7 @@ function mesh(mesh, modelMatrix, vertexShader, fragmentShader) {
         sunlightDirection: gl.getUniformLocation(program, "sunlightDirection"),
         pointLightLocation: gl.getUniformLocation(program, "pointLightLocation"),
         specularColor: gl.getUniformLocation(program, "specularColor"),
+        customColor: gl.getUniformLocation(program, "customColor"),
     };
 
     gl.uniform1i(uniformLocations.textureID, 0);
@@ -161,6 +166,7 @@ function mesh(mesh, modelMatrix, vertexShader, fragmentShader) {
     gl.uniform3fv(uniformLocations.sunlightDirection, state.sunlightDirection);
     gl.uniform3fv(uniformLocations.pointLightLocation, state.pointLightLocation);
     gl.uniform3fv(uniformLocations.specularColor, state.specularColor);
+    gl.uniform3fv(uniformLocations.customColor, state.customColor);
 
     function drawMesh(mesh, shaderProgram) {
         // make sure you have vertex, vertex normal, and texture coordinate
@@ -267,17 +273,33 @@ function animate() {
         // S
         mat4.translate(viewMatrix, viewMatrix, [0, -0.3, 0]);
     }
+    else if (keyMap['102']) {
+        // Num4
+        state.pointLightLocation[0] += 0.3;
+    }
+    else if (keyMap['100']) {
+        // Num6
+        state.pointLightLocation[0] -= 0.3;
+    }
+    else if (keyMap['104']) {
+        // Num8
+        state.pointLightLocation[1] += 0.3;
+    }
+    else if (keyMap['98']) {
+        // Num2
+        state.pointLightLocation[1] -= 0.3;
+    }
     else if (keyMap['107']) {
         // +
-        state.pointLightLocation[0] += 0.3;
+        state.pointLightLocation[2] += 0.3;
     }
     else if (keyMap['109']) {
         // -
-        state.pointLightLocation[0] -= 0.3;
+        state.pointLightLocation[2] -= 0.3;
     }
 
     shape(vertexData, colorData, uvData, indices, normals, state.matrices.lowerTileModelMatrix, vertexShader, colorFragmentShader);
-    shape(vertexData, colorData, uvData, indices, normals, state.matrices.middleTileModelMatrix, vertexShader, textureFragmentShader);
+    shape(vertexData, colorData, uvData, indices, normals, state.matrices.middleTileModelMatrix, vertexShader, textureFragmentShaderPhong);
     shape(vertexData, colorData, uvData, indices, normals, state.matrices.upperTileModelMatrix, vertexShader, textureFragmentShaderPhong);
 
     if (state.meshes.model) {
@@ -285,7 +307,7 @@ function animate() {
     }
 
     if (state.meshes.glasses) {
-        mesh(state.meshes.glasses, state.matrices.glassesModelMatrix, vertexShader, textureFragmentShaderPhong);
+        mesh(state.meshes.glasses, state.matrices.glassesModelMatrix, vertexShader, variableColorFragmentShader);
     }
 
     // shape(vertexData, colorData, uvData, indices, normals, colorCubeModelMatrix, vertexShader, colorFragmentShader);
@@ -307,3 +329,27 @@ function animate() {
 }
 
 animate();
+
+
+
+
+
+const rangeInputs = document.querySelectorAll('input[type="range"]');
+
+function handleInputChange(e) {
+  let target = e.target;
+  
+  if (e.target.type !== 'range') {
+    target = document.getElementById('range');
+  } 
+  
+  const min = target.min;
+  const max = target.max;
+  const val = target.value;
+  
+  target.style.backgroundSize = (val - min) * 100 / (max - min) + '% 100%';
+}
+
+rangeInputs.forEach(input => {
+  input.addEventListener('input', handleInputChange);
+})
