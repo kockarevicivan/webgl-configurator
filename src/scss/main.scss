@@ -76,10 +76,11 @@ main {
 .sidebar {
     position: fixed;
     right: 0;
-    top: 20px;
+    top: 50%;
+    transform: translateY(-50%);
     width: 30%;
     overflow: auto;
-    height: calc(100vh - 100px);
+    max-height: calc(100vh - 100px);
 }
 
 .range-input {

@@ -32,7 +32,7 @@ const state = {
     nearCullDistance: 0.0001,
     farCullDistance: 10000,
 
-    cameraPosition: [0, -3.5, -4.5],
+    cameraPosition: [0, -3, -4.5],
     pointLightLocation: [1, 5, -3],
     specularColor: [0, 0, 0],
     specularAmount: 0.5,
@@ -40,7 +40,7 @@ const state = {
     ambientLightIntensity: [0.6, 0.6, 0.6],
     sunlightIntensity: [1, 1, 1],
     sunlightDirection: [0.0, 1, 0.0],
-    customColor: [1, 0, 0],
+    customColor: [0, 1, 0],
 
     meshes: {},
 
@@ -53,6 +53,8 @@ const state = {
         upperTileModelMatrix: mat4.create(),
     }
 };
+
+window.state = state;
 
 downloadMeshes({
     'model': '/assets/models/statue.obj',
@@ -335,24 +337,3 @@ animate();
 
 
 
-
-
-const rangeInputs = document.querySelectorAll('input[type="range"]');
-
-function handleInputChange(e) {
-  let target = e.target;
-  
-  if (e.target.type !== 'range') {
-    target = document.getElementById('range');
-  } 
-  
-  const min = target.min;
-  const max = target.max;
-  const val = target.value;
-  
-  target.style.backgroundSize = (val - min) * 100 / (max - min) + '% 100%';
-}
-
-rangeInputs.forEach(input => {
-  input.addEventListener('input', handleInputChange);
-})
