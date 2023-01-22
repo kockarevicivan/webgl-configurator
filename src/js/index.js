@@ -27,7 +27,7 @@ const textureFragmentShaderPhong = getTextureFragmentShaderPhong(gl);
 
 // State
 const state = {
-    verticalFov: 75 * Math.PI / 180,
+    verticalFov: 100 * Math.PI / 180,
     aspectRatio: canvas.width / canvas.height,
     nearCullDistance: 0.0001,
     farCullDistance: 10000,
@@ -39,7 +39,7 @@ const state = {
     specularShininess: 50,
     ambientLightIntensity: [0.6, 0.6, 0.6],
     sunlightIntensity: [1, 1, 1],
-    sunlightDirection: [0.0, 1, 0.0],
+    sunlightDirection: [0.0, 0.0, 0.0],
     customColor: [0, 1, 0],
 
     meshes: {},
@@ -61,7 +61,6 @@ downloadMeshes({
     'glasses': '/assets/models/glasses.obj',
 }, function (meshes) {
     state.meshes = meshes;
-    console.log(meshes);
 });
 
 
